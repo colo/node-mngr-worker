@@ -83,17 +83,7 @@ module.exports = new Class({
 						poller: {
 							id: "remote.imap",
 							conn: [
-								{
-									scheme: 'imap',
-									host:'184.107.134.146',
-									port: 143,
-									opts: {
-										user: 'user',
-										password: 'passwd',
-										//autotls: 'always',
-										keepalive: true,
-									}
-								}
+								require('../devel/imap.infraestructura')
 							],
 							connect_retry_count: 5,
 							connect_retry_periodical: 5000,

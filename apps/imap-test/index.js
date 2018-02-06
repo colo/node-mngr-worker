@@ -14,12 +14,14 @@ module.exports = new Class({
 		
 		requests : {
 			once: [
-				search: {
-					//uri: 'INBOX',
-					uri: 'INBOX/?openReadOnly=false',
-					//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
-					opts: {//search options
-						
+				{
+					search: {
+						//uri: 'INBOX',
+						uri: 'INBOX/?openReadOnly=false',
+						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						opts: {//search options
+							
+						}
 					}
 				}
 			],
