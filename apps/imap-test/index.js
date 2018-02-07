@@ -12,17 +12,55 @@ module.exports = new Class({
   
   options: {
 		
+		path: '',
+		
 		requests : {
 			once: [
 				{
-					search: {
+					'search': {
+						uri: '',
 						//uri: 'INBOX',
-						uri: 'INBOX/?openReadOnly=false',
+						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						//uri: '?openReadOnly=false',
 						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
-						opts: {//search options
-							
-						}
-					}
+						opts: ['ALL']//search params
+					},
+					'seq.search': {
+						uri: '',
+						//uri: 'INBOX',
+						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						//uri: '?openReadOnly=false',
+						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						opts: ['ALL']//search params
+					},
+					//'fetch': {
+						//uri: '',
+						////uri: 'INBOX',
+						////uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						////uri: '?openReadOnly=false',
+						////uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						//opts: [//fetch params
+							//118574,
+							//{//fetch options
+								//bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
+								//struct: true
+							//}
+						//]
+					//}
+					//'seq.fetch': {
+						//uri: '',
+						////uri: 'INBOX',
+						////uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						////uri: '?openReadOnly=false',
+						////uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						//opts: [//fetch params
+							//'1:3',
+							//{//fetch options
+								//bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
+								//struct: true
+							//}
+						//]
+					//}
 				}
 			],
 			periodical: [
@@ -42,9 +80,27 @@ module.exports = new Class({
 		routes: {
 			search: [
 				{
-					path: ':mailbox/?options',
+					path: ':mailbox?/:options?',
 					callbacks: ['search']
-				}
+				},
+			],
+			'seq.search': [
+				{
+					path: ':mailbox?/:options?',
+					callbacks: ['seq_search']
+				},
+			],
+			fetch: [
+				{
+					path: ':mailbox?/:options?',
+					callbacks: ['fetch']
+				},
+			],
+			'seq.fetch': [
+				{
+					path: ':mailbox?/:options?',
+					callbacks: ['seq_fetch']
+				},
 			],
 		},
 		
@@ -53,6 +109,21 @@ module.exports = new Class({
 		debug('search err %o', err);
 		debug('search %o', resp);
 		debug('search options %o', options);
+	},
+	seq_search: function(err, resp, options){
+		debug('seq_search err %o', err);
+		debug('seq_search %o', resp);
+		debug('seq_search options %o', options);
+	},
+	fetch: function(err, resp, options){
+		debug('fetch err %o', err);
+		debug('fetch %o', resp);
+		debug('fetch options %o', options);
+	},
+	seq_fetch: function(err, resp, options){
+		debug('seq_fetch err %o', err);
+		debug('seq_fetch %o', resp);
+		debug('seq_fetch options %o', options);
 	},
   initialize: function(options){
 	
