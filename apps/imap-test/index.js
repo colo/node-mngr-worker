@@ -16,16 +16,16 @@ module.exports = new Class({
 		
 		requests : {
 			once: [
-				{
-					'search': {
-						uri: '',
-						//uri: 'INBOX',
-						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
-						//uri: '?openReadOnly=false',
-						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
-						opts: ['ALL']//search params
-					},
-				},
+				//{
+					//'search': {
+						//uri: '',
+						////uri: 'INBOX',
+						////uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						////uri: '?openReadOnly=false',
+						////uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						//opts: ['ALL']//search params
+					//},
+				//},
 				{
 					'seq.search': {
 						uri: '',
@@ -36,40 +36,40 @@ module.exports = new Class({
 						opts: ['1:10']//search params
 					},
 				},
-				{
-					'fetch': {
-						uri: '',
-						//uri: 'INBOX',
-						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
-						//uri: '?openReadOnly=false',
-						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
-						opts: [//fetch params
-							118574,
-							{//fetch options
-								bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
-								struct: true
-							}
-						]
-					}
-				},
-				{
-					'seq.fetch': {
-						uri: '',
-						//uri: 'INBOX',
-						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
-						//uri: '?openReadOnly=false',
-						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
-						opts: [//fetch params
-							'1:3',
-							{//fetch options
+				//{
+					//'fetch': {
+						//uri: '',
+						////uri: 'INBOX',
+						////uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						////uri: '?openReadOnly=false',
+						////uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						//opts: [//fetch params
+							//118574,
+							//{//fetch options
 								//bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
-								struct: true,
-								envelope: true,
-								bodies: ['']//header + resp
-							}
-						]
-					}
-				}
+								//struct: true
+							//}
+						//]
+					//}
+				//},
+				//{
+					//'seq.fetch': {
+						//uri: '',
+						////uri: 'INBOX',
+						////uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						////uri: '?openReadOnly=false',
+						////uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						//opts: [//fetch params
+							//'1:3',
+							//{//fetch options
+								////bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
+								//struct: true,
+								//envelope: true,
+								//bodies: ['']//header + resp
+							//}
+						//]
+					//}
+				//}
 			],
 			periodical: [
 				//{ list: { uri: '' } },

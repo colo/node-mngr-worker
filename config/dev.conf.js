@@ -4,6 +4,8 @@ const Moo = require("mootools"),
 		BaseApp = require ('./base.conf');
 
 //var winston = require('winston');
+var debug = require('debug')('Server:App:Config');
+var debug_internals = require('debug')('Server:App:Config:Internals');
 
 module.exports = new Class({
   Extends: BaseApp,
@@ -11,44 +13,82 @@ module.exports = new Class({
   options: {
 		
 		pipelines: [
-			//{
-				//input: [
-					//{
-						//poller: {
-							//id: "localhost.http",
-							//conn: [
-								//{
-									//scheme: 'http',
-									//host:'127.0.0.1',
-									//port: 8081,
-								//}
-							//],
-							////requests: {
-								////periodical: 5000,
-							////},
-						//},
-					//},
-				//],
-				//output: [
-					//{
-						//cradle: {
-							//id: "localhost.cradle",
-							//conn: [
-								//{
-									//host: '127.0.0.1',
-									//port: 5984,
-									//db: 'dashboard',
-									//opts: {
-										//cache: true,
-										//raw: false,
-										//forceSave: true,
-									//}
-								//},
-							//]
-						//},
-					//}
-				//]
-			//},
+			{
+				input: [
+					{
+						poller: {
+							id: "localhost.http",
+							conn: [
+								{
+									scheme: 'http',
+									host:'127.0.0.1',
+									port: 8081,
+								}
+							],
+							//requests: {
+								//periodical: 5000,
+							//},
+						},
+					},
+				],
+				filters: [
+					function(doc, opts){
+						let { type, input, poll, app } = opts;
+						
+						let doc_id = input.options.id +'.'+poll.options.id +'.'+app.options.id;
+						let timestamp = Date.now();
+						
+						if(!doc.data){
+							var new_doc = { data: null };
+							if(Array.isArray(doc)){
+								new_doc.data = doc;
+							}
+							else{
+								new_doc.data = (doc instanceof Object) ? Object.clone(doc) : doc;
+							}
+							
+							doc = new_doc;
+						}
+						
+						debug_internals('TO _sanitize_doc %o', doc);
+						
+						if(!doc._id){
+							doc._id = doc_id +'@'+timestamp;
+						}
+						
+						doc['metadata'] = {
+							id: input.options.id,
+							host: poll.options.id,
+							path: app.options.id,
+							type: type,
+							timestamp: timestamp
+						};
+						
+						debug_internals('_sanitize_doc %o', doc);
+						
+						return doc;
+					}
+				],
+				output: [
+					{
+						cradle: {
+							id: "localhost.cradle",
+							conn: [
+								{
+									host: '127.0.0.1',
+									port: 5984,
+									db: 'dashboard',
+									opts: {
+										cache: true,
+										raw: false,
+										forceSave: true,
+									}
+								},
+							]
+						},
+					}
+				]
+			},
 			
 			/**
 			 * munin
@@ -91,6 +131,59 @@ module.exports = new Class({
 								periodical: 2000,
 							},
 						},
+					}
+				],
+				filters: [
+					function(doc, opts){
+						let { type, input, poll, app } = opts;
+						
+						let doc_id = input.options.id +'.'+poll.options.id +'.'+app.options.id;
+						let timestamp = Date.now();
+						
+						//let metadata = {
+							////domain: domain,
+							////id: poll_id,
+							//id: input.options.id,
+							//host: poll.options.id,
+							//path: app.options.id,
+							//type: type,
+							//timestamp: timestamp
+						//};
+						
+						if(!doc.data){
+							var new_doc = { data: null };
+							if(Array.isArray(doc)){
+								new_doc.data = doc;
+							}
+							else{
+								new_doc.data = (doc instanceof Object) ? Object.clone(doc) : doc;
+							}
+							
+							doc = new_doc;
+						}
+						
+						debug_internals('TO _sanitize_doc %o', doc);
+						
+						if(!doc._id){
+							doc._id = doc_id +'@'+timestamp;
+						}
+						
+						doc['metadata'] = {
+							id: input.options.id,
+							host: poll.options.id,
+							path: app.options.id,
+							type: type,
+							timestamp: timestamp
+						};
+						
+						//doc['metadata']	 = Object.clone(metadata);
+						//doc['metadata']['type'] = null;
+						//doc['metadata']['client'] = null;
+						//doc['metadata']['timestamp'] = timestamp;
+						
+						debug_internals('_sanitize_doc %o', doc);
+						
+						return doc;
 					}
 				],
 				output: [
