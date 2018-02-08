@@ -33,7 +33,7 @@ module.exports = new Class({
 						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
 						//uri: '?openReadOnly=false',
 						//uri: 'INBOX/?openReadOnly=false&something=xxx&something2=xxx',
-						opts: ['ALL']//search params
+						opts: ['1:10']//search params
 					},
 				},
 				{
@@ -65,7 +65,7 @@ module.exports = new Class({
 								//bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
 								struct: true,
 								envelope: true,
-								bodies: ['']//header + body
+								bodies: ['']//header + resp
 							}
 						]
 					}
@@ -89,49 +89,99 @@ module.exports = new Class({
 			search: [
 				{
 					path: ':mailbox?/:options?',
-					callbacks: ['search']
+					callbacks: ['save']
 				},
 			],
 			'seq.search': [
 				{
 					path: ':mailbox?/:options?',
-					callbacks: ['seq_search']
+					callbacks: ['save']
 				},
 			],
 			fetch: [
 				{
 					path: ':mailbox?/:options?',
-					callbacks: ['fetch']
+					callbacks: ['save']
 				},
 			],
 			'seq.fetch': [
 				{
 					path: ':mailbox?/:options?',
-					callbacks: ['seq_fetch']
+					callbacks: ['save']
 				},
 			],
 		},
 		
   },
-  search: function(err, resp, options){
-		debug('search err %o', err);
-		debug('search %o', resp);
-		debug('search options %o', options);
-	},
-	seq_search: function(err, resp, options){
-		debug('seq_search err %o', err);
-		debug('seq_search %o', resp);
-		debug('seq_search options %o', options);
-	},
-	fetch: function(err, resp, options){
-		debug('fetch err %o', err);
-		debug('fetch %o', resp);
-		debug('fetch options %o', options);
-	},
-	seq_fetch: function(err, resp, options){
-		debug('seq_fetch err %o', err);
-		debug('seq_fetch %o', resp);
-		debug('seq_fetch options %o', options);
+  //search: function(err, resp, options){
+		//debug('search err %o', err);
+		//debug('search %o', resp);
+		//debug('search options %o', options);
+	//},
+	//seq_search: function(err, resp, options){
+		//debug('seq_search err %o', err);
+		//debug('seq_search %o', resp);
+		//debug('seq_search options %o', options);
+	//},
+	//fetch: function(err, resp, options){
+		//debug('fetch err %o', err);
+		//debug('fetch %o', resp);
+		//debug('fetch options %o', options);
+	//},
+	save: function(err, resp, options){
+		
+		debug('save %o', resp);
+		debug('save options %o', options);
+		
+		if(err){
+			debug('save err %o', err);
+			
+			if(options.uri != ''){
+				this.fireEvent('on'+options.uri.charAt(0).toUpperCase() + options.uri.slice(1)+'Error', err);//capitalize first letter
+			}
+			else{
+				this.fireEvent('onGetError', err);
+			}
+			
+			this.fireEvent(this.ON_DOC_ERROR, err);
+			
+			//if(this.options.requests.current.type == 'once'){
+				
+				this.fireEvent(
+					this[
+						'ON_'+this.options.requests.current.type.toUpperCase()+'_DOC_ERROR'
+					],
+					err
+				);
+				
+			//}
+			//else{
+				//this.fireEvent(this.ON_PERIODICAL_DOC_ERROR, err);
+			//}
+		}
+		else{
+			////console.log('success');
+			
+			if(options.uri != ''){
+				this.fireEvent('on'+options.uri.charAt(0).toUpperCase() + options.uri.slice(1), JSON.decode(resp));//capitalize first letter
+			}
+			else{
+				this.fireEvent('onGet', resp);
+			}
+			
+			
+			if(typeof(resp) == 'array' || resp instanceof Array)
+				resp = [resp];
+				
+			this.fireEvent(
+				this[
+					'ON_'+this.options.requests.current.type.toUpperCase()+'_DOC'
+				],
+				resp
+			);
+			
+			
+		}
 	},
   initialize: function(options){
 	
