@@ -25,42 +25,50 @@ module.exports = new Class({
 						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
 						opts: ['ALL']//search params
 					},
+				},
+				{
 					'seq.search': {
 						uri: '',
 						//uri: 'INBOX',
 						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
 						//uri: '?openReadOnly=false',
-						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						//uri: 'INBOX/?openReadOnly=false&something=xxx&something2=xxx',
 						opts: ['ALL']//search params
 					},
-					//'fetch': {
-						//uri: '',
-						////uri: 'INBOX',
-						////uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
-						////uri: '?openReadOnly=false',
-						////uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
-						//opts: [//fetch params
-							//118574,
-							//{//fetch options
+				},
+				{
+					'fetch': {
+						uri: '',
+						//uri: 'INBOX',
+						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						//uri: '?openReadOnly=false',
+						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						opts: [//fetch params
+							118574,
+							{//fetch options
+								bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
+								struct: true
+							}
+						]
+					}
+				},
+				{
+					'seq.fetch': {
+						uri: '',
+						//uri: 'INBOX',
+						//uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
+						//uri: '?openReadOnly=false',
+						//uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
+						opts: [//fetch params
+							'1:3',
+							{//fetch options
 								//bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
-								//struct: true
-							//}
-						//]
-					//}
-					//'seq.fetch': {
-						//uri: '',
-						////uri: 'INBOX',
-						////uri: 'INBOX/?openReadOnly=false', //readonly || openReadOnly
-						////uri: '?openReadOnly=false',
-						////uri: 'INBOX/?openReadOnly=false&modifiers.something=xxx',
-						//opts: [//fetch params
-							//'1:3',
-							//{//fetch options
-								//bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
-								//struct: true
-							//}
-						//]
-					//}
+								struct: true,
+								envelope: true,
+								bodies: ['']//header + body
+							}
+						]
+					}
 				}
 			],
 			periodical: [
