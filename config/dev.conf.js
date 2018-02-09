@@ -25,9 +25,9 @@ module.exports = new Class({
 									port: 8081,
 								}
 							],
-							//requests: {
-								//periodical: 5000,
-							//},
+							requests: {
+								periodical: 5000,
+							},
 						},
 					},
 				],
