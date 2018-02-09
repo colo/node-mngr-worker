@@ -32,6 +32,8 @@ process.on('uncaughtException', (err) => {
 			process.exit(1);
 })
 
+//we register many 'exit' events on this emmiter to handle shutdown gracefully (ex: Poller), set it 0 to avoid Warning
+process.setMaxListeners(0);
                   
 //const {NodeVM, VMScript} = require('vm2');
 	
