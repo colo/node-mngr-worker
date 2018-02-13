@@ -19,6 +19,7 @@
     "mootools": "^1.5.2",
     "multer": "^1.2.0",
     "pouchdb": "^5.4.5",
+    "simple-statistics": "^5.2.1",
     "sqldown": "^2.1.0",
     "sqlite3": "^3.1.4",
     "supports-color": "^5.1.0",
