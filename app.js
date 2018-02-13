@@ -14,6 +14,16 @@ const PollHttpConf =  process.env.NODE_ENV === 'production'
       ? require('./config/poll/http/prod.conf')
       : require('./config/poll/http/dev.conf');
 
+
+const InputPusherConf =  process.env.NODE_ENV === 'production'
+      ? require('./config/pusher/prod.conf')
+      : require('./config/pusher/dev.conf');
+
+const PushHttpConf =  process.env.NODE_ENV === 'production'
+      ? require('./config/push/http/prod.conf')
+      : require('./config/push/http/dev.conf');
+
+
 const OutputCradleConf =  process.env.NODE_ENV === 'production'
       ? require('./config/output/cradle/prod.conf')
       : require('./config/output/cradle/dev.conf');
@@ -168,11 +178,21 @@ var Server = new Class({
 					Array.each(pipe['input'], function(input){
 						let type = Object.keys(input)[0];
 						switch (type){
-							case 'poller':
+							case 'poll':
 								input[type] = Object.merge(InputPollerConf, input[type]);
-								if(input[type]['conn']){
+								if(input[type]['conn'] && input[type]['conn']['scheme'] == 'http'){
 									Array.each(input[type]['conn'], function(conn, index){
 										input[type]['conn'][index] = Object.merge(PollHttpConf, conn);
+										////console.log(input[type]['conn'][index]);
+									});
+								}
+								break;
+							
+							case 'push':
+								input[type] = Object.merge(InputPusherConf, input[type]);
+								if(input[type]['conn'] && input[type]['conn']['scheme'] == 'http'){
+									Array.each(input[type]['conn'], function(conn, index){
+										input[type]['conn'][index] = Object.merge(PushHttpConf, conn);
 										////console.log(input[type]['conn'][index]);
 									});
 								}
