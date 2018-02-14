@@ -1,3 +1,6 @@
+var debug = require('debug')('filter:sanitize');
+var debug_internals = require('debug')('filter:sanitize:Internals');
+
 module.exports = function(doc, opts, next){//sanitize + metadata
 	let { type, input, input_type, app } = opts;
 	
