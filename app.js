@@ -220,7 +220,7 @@ var Server = new Class({
 								break;
 								
 							default:
-								throw new Error('Output ['+type+'] not implemented');
+								//throw new Error('Output ['+type+'] not implemented');
 						}
 					});
 				}
