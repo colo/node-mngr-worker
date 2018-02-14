@@ -13,14 +13,14 @@ module.exports = new Class({
   options: {
 		
 		pipelines: [
-			{
-				input: [
-					require('../etc/snippets/input.poll.http.schedule.template.js')
-				],
-				output: [
-					require('../etc/snippets/output.stdout.template.js')
-				],
-			}	
+			//{
+				//input: [
+					//require('../etc/snippets/input.poll.http.schedule.template.js')
+				//],
+				//output: [
+					//require('../etc/snippets/output.stdout.template.js')
+				//],
+			//}
 		],
 		
 		 

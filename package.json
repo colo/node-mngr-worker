@@ -1,5 +1,5 @@
 {
-  "name": "express-test2",
+  "name": "node-mngr-worker",
   "version": "0.0.0",
   "private": true,
   "config": {
@@ -18,12 +18,11 @@
     "memorystore": "^1.6.0",
     "mootools": "^1.5.2",
     "multer": "^1.2.0",
-    "node-cron": "^1.2.1",
-    "pouchdb": "^5.4.5",
-    "simple-statistics": "^5.2.1",
-    "sqldown": "^2.1.0",
-    "sqlite3": "^3.1.4",
-    "supports-color": "^5.1.0",
-    "vm2": "^3.5.2"
+    "node-app-cradle-client": "git+https://github.com/colo/node-app-cradle-client.git",
+    "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
+    "node-app-imap-client": "git+https://github.com/colo/node-app-imap-client.git",
+    "node-app-munin-client": "git+https://github.com/colo/node-app-munin-client.git",
+    "node-express-app": "git+https://github.com/colo/node-express-app.git",
+    "supports-color": "^5.1.0"
   }
 }
