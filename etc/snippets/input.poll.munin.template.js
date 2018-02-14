@@ -4,7 +4,7 @@ module.exports = {
 		conn: [
 			{
 				scheme: 'munin',
-				host:'xxx.xxx.xxx.xxx',
+				host:'127.0.0.1',
 				port: 4949,
 			}
 		],

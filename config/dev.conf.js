@@ -12,16 +12,7 @@ module.exports = new Class({
   
   options: {
 		
-		pipelines: [
-			{
-				input: [
-					require('../etc/snippets/input.poll.http.template.js')
-				],
-				output: [
-					require('../etc/snippets/output.stdout.template.js')
-				],
-			}
-		],
+		pipelines: require('../etc/pipelines'),
 		
 		 
 		authentication: {
