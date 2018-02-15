@@ -1,3 +1,6 @@
+var debug = require('debug')('filter:os-stats');
+var debug_internals = require('debug')('filter:os-stats:Internals');
+
 /**
  * recives an array of OS docs and does some statictics on freemem
  * 
@@ -6,45 +9,75 @@ module.exports = function(doc, opts, next){
 						
 	var ss = require('simple-statistics');
 	
-	debug_internals('first filter doc %o', doc);
-	debug_internals('first filter length %o', doc.length);
-	debug_internals('first filter->next %o', next);
+	debug_internals('os-stats filter doc %o', doc);
+	debug_internals('os-stats filter length %o', doc.length);
+	debug_internals('os-stats filter->next %o', next);
 	
 	if(typeof(doc) == 'array' || doc instanceof Array || Array.isArray(doc)){
 		let first = doc[0].doc.metadata.timestamp;
 		let last = doc[doc.length - 1].doc.metadata.timestamp;
-		let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
 		
-		var freemems = [];
-		
+		let values = {};
 		Array.each(doc, function(d){
 			let data = d.doc.data;
-			//console.log(d.doc.data.freemem);
-			//next(format_doc(d.doc), opts);
-			freemems.push(data.freemem);
+			let host = d.key[2];
+			
+			if(!values[host]) values[host] = {};
+			
+			debug_internals('os-stats filter get HOST %o', d.key[2]);
+			
+			Object.each(data, function(value, key){
+				if(key != 'networkInterfaces' && key != 'cpus' && key != 'totalmem'){
+					if(!values[host][key]) values[host][key] = [];
+					
+					if(key == 'loadavg'){//keep only "last minute" value
+						values[host][key].push(value[0]);
+					}
+					else{
+						values[host][key].push(value);
+					}
+					
+				}	
+				
+				
+			});
 		});
 		
-		new_doc['metadata'] = {
-			range: {
-				start: first,
-				end: last
-			}
-		};
-		new_doc['data']['samples'] = freemems;
-		new_doc['data']['min'] = ss.min(freemems).toFixed(2);
-		new_doc['data']['max'] = ss.max(freemems).toFixed(2);
-		new_doc['data']['avg'] = ss.mean(freemems).toFixed(2);
-		new_doc['data']['median'] = ss.median(freemems).toFixed(2);
-		new_doc['data']['harmonic'] = ss.harmonicMean(freemems).toFixed(2);
-		new_doc['data']['geometric'] = ss.geometricMean(freemems).toFixed(2);
-		//new_doc['data']['variance'] = ss.variance(freemems).toFixed(2);
-		new_doc['data']['median_ab_deviation'] = ss.medianAbsoluteDeviation(freemems).toFixed(2);
+		Object.each(values, function(data, host){
+			
+			let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
+			
+			Object.each(data, function(value, key){
+				
+				debug_internals('os-stats filter value %o', value);
+			
+				new_doc['data'][key] = {
+					samples : value,
+					min : ss.min(value).toFixed(2),
+					max : ss.max(value).toFixed(2),
+					avg : ss.mean(value).toFixed(2),
+					median : ss.median(value).toFixed(2),
+					harmonic : ss.harmonicMean(value).toFixed(2),
+					geometric : ss.geometricMean(value).toFixed(2),
+					//variance : ss.variance(freemems).toFixed(2),
+					median_ab_deviation : ss.medianAbsoluteDeviation(value).toFixed(2)
+				};
+			
+				new_doc['metadata'] = {
+					host: host,
+					range: {
+						start: first,
+						end: last
+					}
+				};
+				
+				next(new_doc, opts);
+			});
+			
+		});
 		
 		
-		next(new_doc, opts);
 		
 	}
-	//else{
-		//next(format_doc(doc, opts));
-	//}
+	
 };

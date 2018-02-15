@@ -1,10 +1,10 @@
-var debug = require('debug')('filter:sanitize');
-var debug_internals = require('debug')('filter:sanitize:Internals');
+var debug = require('debug')('filter:sanitize.munin');
+var debug_internals = require('debug')('filter:sanitize.munin:Internals');
 
-module.exports = function(doc, opts, next){//sanitize + metadata
+module.exports = function(doc, opts, next){//sanitize.munin + metadata
 	let { type, input, input_type, app } = opts;
 	
-	debug_internals('TO _sanitize_doc opts %o', opts);
+	debug_internals('TO _sanitize.munin_doc opts %o', opts);
 	
 	let doc_id = input.options.id +'.'+input_type.options.id +'.'+doc.id;
 	let timestamp = Date.now();
@@ -21,7 +21,7 @@ module.exports = function(doc, opts, next){//sanitize + metadata
 		doc = new_doc;
 	}
 	
-	//debug_internals('TO _sanitize_doc %o', doc);
+	//debug_internals('TO _sanitize.munin_doc %o', doc);
 	
 	if(!doc._id){
 		doc._id = doc_id +'@'+timestamp;
@@ -42,8 +42,8 @@ module.exports = function(doc, opts, next){//sanitize + metadata
 		doc['metadata'] = metadata;
 	}
 	
-	debug_internals('sanitize + metadata filter %o', doc);
-	debug_internals('sanitize + metadata filter->next %o', next);
+	debug_internals('sanitize.munin + metadata filter %o', doc);
+	debug_internals('sanitize.munin + metadata filter->next %o', next);
 	
 	//return doc;
 	next(doc);

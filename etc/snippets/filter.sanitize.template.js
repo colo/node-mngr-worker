@@ -36,7 +36,7 @@ module.exports = function(doc, opts, next){//sanitize + metadata
 	};
 	
 	if(doc['metadata']){
-		doc['metadata'] = Object.merge(doc['metadata'], metadata);
+		doc['metadata'] = Object.merge(metadata, doc['metadata']);
 	}
 	else{
 		doc['metadata'] = metadata;

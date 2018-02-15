@@ -23,6 +23,7 @@
     "node-app-imap-client": "git+https://github.com/colo/node-app-imap-client.git",
     "node-app-munin-client": "git+https://github.com/colo/node-app-munin-client.git",
     "node-express-app": "git+https://github.com/colo/node-express-app.git",
+    "simple-statistics": "^5.2.1",
     "supports-color": "^5.1.0"
   }
 }
