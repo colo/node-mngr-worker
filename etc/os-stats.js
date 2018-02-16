@@ -5,13 +5,13 @@ module.exports = {
 			id: "remote.cradle",
 			conn: [{scheme: 'cradle', host:'192.168.0.180', port: 5984 , db: 'dashboard'}],
 			requests: {
-				periodical: 60000,
+				periodical: 1000,
 			},
 		},
 	}
  ],
  filters: [
-		require('./snippets/filter.statistics.template'),
+		require('./snippets/filter.os.statistics.template'),
 		require('./snippets/filter.sanitize.template'),
 	],
 	output: [
