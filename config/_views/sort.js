@@ -96,9 +96,12 @@ var ddoc = {
 }
 
 
-var db = new(cradle.Connection)().database('dashboard');
+//var db = new(cradle.Connection)().database('dashboard');
 
-//var db = new(cradle.Connection)('192.168.0.180', 5984).database('dashboard');
+//let host = '192.168.0.180';
+let host = '127.0.0.1';
+
+var db = new(cradle.Connection)(host, 5984).database('dashboard');
 
 var save_views = function(){
 	db.save([ddoc], function (err, res) {

@@ -2,14 +2,14 @@ module.exports = {
  input: [
 	{
 		poll: {
-			id: "input.os.stats.cradle",
+			id: "input.os.http",
 			conn: [
 				{
-					scheme: 'cradle',
+					scheme: 'http',
 					//host:'192.168.0.180',
 					host:'127.0.0.1',
-					port: 5984 ,
-					db: 'dashboard'}
+					port: 8081
+				}
 			],
 			requests: {
 				periodical: 1000,
@@ -18,20 +18,19 @@ module.exports = {
 	}
  ],
  filters: [
-		require('./snippets/filter.os.statistics.template'),
 		require('./snippets/filter.sanitize.template'),
 	],
 	output: [
 		//require('./snippets/output.stdout.template'),
 		{
 			cradle: {
-				id: "output.os.stats.cradle",
+				id: "output.os.cradle",
 				conn: [
 					{
 						host: '127.0.0.1',
 						//host: '192.168.0.180',
 						port: 5984,
-						db: 'stats',
+						db: 'dashboard',
 						opts: {
 							cache: true,
 							raw: false,
