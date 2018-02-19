@@ -9,92 +9,96 @@ var cradle = require('cradle-pouchdb-server');
 //})
 		
 // create a design doc
-var ddoc = {
-  _id: '_design/sort',
-  views: {
-		by_date: {
-      map: function sort(doc) {
-				//if (doc.metadata.type == 'once') {
-					//var id = doc._id.split('@');//get host.path | timestamp
-					//var host = doc.metadata.domain +'.'+doc.metadata.host;
-					//var date = parseInt(id[1]);
-					//var date = new Date();
-					//date.setTime(id[1]);
-					
-					//var date_arr = [
-						//date.getFullYear(),
-						//date.getMonth() + 1,
-						//date.getDate(),
-						//date.getHours(),
-						//date.getMinutes(),
-						//date.getSeconds()
-					//];
-					
-					//var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
-					
-					if(!doc.metadata.timestamp){
-						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
-					}
-					else{
-						date = parseInt(doc.metadata.timestamp);
-					}
-					
-					//emit([doc.metadata.type, date, host], null);
-					emit([doc.metadata.type, date, doc.metadata.host], null);
-				//}
-      }.toString()
-    },
-    by_host: {
-      map: function sort(doc) {
-				//if (doc.metadata.type == 'once') {
-					//var id = doc._id.split('@');//get host.path | timestamp
-					//var host = id[0];
-					//var date = parseInt(id[1]);
-					
-					//var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
-					
-					if(!doc.metadata.timestamp){
-						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
-					}
-					else{
-						date = parseInt(doc.metadata.timestamp);
-					}
-					
-					//emit([doc.metadata.type, host, date], null);
-					emit([doc.metadata.type, doc.metadata.host, date], null);
-				//}
-      }.toString()
-    },
-    by_path_host: {
-      map: function sort(doc) {
-				//if (doc.metadata.type == 'once') {
-					//var id = doc._id.split('@');//get host.path | timestamp
-					//var host = id[0];
-					//var date = parseInt(id[1]);
-					
-					//var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
-					
-					if(!doc.metadata.timestamp){
-						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
-					}
-					else{
-						date = parseInt(doc.metadata.timestamp);
-					}
-					
-					//emit([doc.metadata.type, doc.metadata.path, host, date], null);
-					emit([doc.metadata.type, doc.metadata.path, doc.metadata.host, date], null);
-				//}
-      }.toString()
-    }
-  }
-}
+var ddoc = [
+	{
+		_id: '_design/sort',
+		views: {
+			by_date: {
+				map: function (doc) {
+					//if (doc.metadata.type == 'once') {
+						//var id = doc._id.split('@');//get host.path | timestamp
+						//var host = doc.metadata.domain +'.'+doc.metadata.host;
+						//var date = parseInt(id[1]);
+						//var date = new Date();
+						//date.setTime(id[1]);
+						
+						//var date_arr = [
+							//date.getFullYear(),
+							//date.getMonth() + 1,
+							//date.getDate(),
+							//date.getHours(),
+							//date.getMinutes(),
+							//date.getSeconds()
+						//];
+						
+						//var host = doc.metadata.domain +'.'+doc.metadata.host;
+						var date = 0;
+						
+						if(!doc.metadata.timestamp){
+							var id = doc._id.split('@');//get host.path | timestamp
+							date = parseInt(id[1]);
+						}
+						else{
+							date = parseInt(doc.metadata.timestamp);
+						}
+						
+						//emit([doc.metadata.type, date, host], null);
+						emit([date, doc.metadata.type, doc.metadata.host], null);
+					//}
+				}.toString()
+			},
+			by_host: {
+				map: function (doc) {
+						var date = 0;
+						
+						if(!doc.metadata.timestamp){
+							var id = doc._id.split('@');//get host.path | timestamp
+							date = parseInt(id[1]);
+						}
+						else{
+							date = parseInt(doc.metadata.timestamp);
+						}
+						
+						//emit([doc.metadata.type, host, date], null);
+						emit([doc.metadata.host, doc.metadata.type, date], null);
+					//}
+				}.toString()
+			},
+			by_path: {
+				map: function (doc) {
 
+						var date = 0;
+						
+						if(!doc.metadata.timestamp){
+							var id = doc._id.split('@');//get host.path | timestamp
+							date = parseInt(id[1]);
+						}
+						else{
+							date = parseInt(doc.metadata.timestamp);
+						}
+						
+						//emit([doc.metadata.type, doc.metadata.path, host, date], null);
+						emit([doc.metadata.path, doc.metadata.host, doc.metadata.type, date], null);
+					//}
+				}.toString()
+			}
+		}
+	},
+	{
+		_id: '_design/search',
+		views: {
+			hosts: {
+				map: function (doc) {
+					emit(doc.metadata.host, null);
+				}.toString(),
+				reduce: function(keys, values) {
+					return null;
+				}.toString()
+			},
+			
+		}
+	}
+]
 
 //var db = new(cradle.Connection)().database('dashboard');
 
@@ -104,7 +108,7 @@ let host = '127.0.0.1';
 var db = new(cradle.Connection)(host, 5984).database('dashboard');
 
 var save_views = function(){
-	db.save([ddoc], function (err, res) {
+	db.save(ddoc, function (err, res) {
 		if(err){
 			console.log('BULK SAVE ERR');
 			console.log(err);

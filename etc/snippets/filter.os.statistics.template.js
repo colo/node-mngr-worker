@@ -20,11 +20,11 @@ module.exports = function(doc, opts, next){
 		let values = {};
 		Array.each(doc, function(d){
 			let data = d.doc.data;
-			let host = d.key[2];
+			let host = d.key[1];
 			
 			if(!values[host]) values[host] = {};
 			
-			debug_internals('os-stats filter get HOST %o', d.key[2]);
+			debug_internals('os-stats filter get HOST %o', d.key[1]);
 			
 			Object.each(data, function(value, key){
 				if(key != 'networkInterfaces' && key != 'totalmem'){

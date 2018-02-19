@@ -12,7 +12,7 @@ module.exports = {
 				}
 			],
 			requests: {
-				periodical: 1000,
+				periodical: 3000,
 			},
 		},
 	}
