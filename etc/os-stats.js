@@ -6,13 +6,18 @@ module.exports = {
 			conn: [
 				{
 					scheme: 'cradle',
-					//host:'192.168.0.180',
-					host:'127.0.0.1',
+					host:'192.168.0.180',
+					//host:'127.0.0.1',
 					port: 5984 ,
 					db: 'dashboard'}
 			],
 			requests: {
-				periodical: 1000,
+				/**
+				 * runnign at 20 secs intervals
+				 * needs 3 runs to start analyzing from last stats (or from begining)
+				 * it takes 60 secs to complete, so it makes stats each minute
+				 * */
+				periodical: 20000,
 			},
 		},
 	}
@@ -28,8 +33,8 @@ module.exports = {
 				id: "output.os.stats.cradle",
 				conn: [
 					{
-						host: '127.0.0.1',
-						//host: '192.168.0.180',
+						//host: '127.0.0.1',
+						host: '192.168.0.180',
 						port: 5984,
 						db: 'stats',
 						opts: {
@@ -38,7 +43,11 @@ module.exports = {
 							forceSave: true,
 						}
 					},
-				]
+				],
+				buffer:{
+					size: 0,
+					expire:0
+				}
 			}
 		}
 	]

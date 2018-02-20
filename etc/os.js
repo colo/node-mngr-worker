@@ -6,13 +6,12 @@ module.exports = {
 			conn: [
 				{
 					scheme: 'http',
-					//host:'192.168.0.180',
 					host:'127.0.0.1',
 					port: 8081
 				}
 			],
 			requests: {
-				periodical: 3000,
+				periodical: 1000,
 			},
 		},
 	}
@@ -27,8 +26,8 @@ module.exports = {
 				id: "output.os.cradle",
 				conn: [
 					{
-						host: '127.0.0.1',
-						//host: '192.168.0.180',
+						//host: '127.0.0.1',
+						host: '192.168.0.180',
 						port: 5984,
 						db: 'dashboard',
 						opts: {
