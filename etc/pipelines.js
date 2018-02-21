@@ -2,6 +2,7 @@ module.exports = [
     //require('./munin.js'),
     //require('./os'),
     //require('./os.minute.stats'),
-    require('./os.fix.stats'),
+    //require('./os.fix.stats'),
+    require('./os.hour.stats'),
     //require('./os.purge'),
 ]
