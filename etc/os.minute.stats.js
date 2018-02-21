@@ -23,7 +23,7 @@ module.exports = {
 	}
  ],
  filters: [
-		require('./snippets/filter.os.statistics.template'),
+		require('./snippets/filter.os.minute.statistics.template'),
 		require('./snippets/filter.sanitize.template'),
 	],
 	output: [

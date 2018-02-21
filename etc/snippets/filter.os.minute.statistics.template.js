@@ -136,6 +136,7 @@ module.exports = function(doc, opts, next){
 				}
 				
 				new_doc['metadata'] = {
+					type: 'minute',
 					host: host,
 					range: {
 						start: first,
