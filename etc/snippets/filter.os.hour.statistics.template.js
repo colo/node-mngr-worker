@@ -106,7 +106,7 @@ module.exports = function(doc, opts, next){
 					
 					Object.each(times, function(time, key){//user,nice..etc
 						let data = {
-							samples: time,
+							//samples: time,
 							min : ss.min(time),
 							max : ss.max(time),
 							avg : ss.mean(time),
@@ -116,10 +116,10 @@ module.exports = function(doc, opts, next){
 						times[key] = data;
 					});
 					
-					debug_internals('os-hour-stats filter speed %o', speed);
 					
 					Array.each(speed, function(cpu, core){//do the statictics
 						let data = {
+							//samples: cpu,
 							min : ss.min(cpu),
 							max : ss.max(cpu),
 							avg : ss.mean(cpu),
@@ -129,15 +129,11 @@ module.exports = function(doc, opts, next){
 						speed[core] = data;
 					});
 					
+					//debug_internals('os-hour-stats filter speed %o', speed);
 					
 					new_doc['data'][key] = {
 						samples: value,
-						speed: {
-							min : ss.min(speed),
-							max : ss.max(speed),
-							avg : ss.mean(speed),
-							median : ss.median(speed),
-						},
+						speed: speed,
 						times: times
 					};
 				}
@@ -167,7 +163,7 @@ module.exports = function(doc, opts, next){
 				
 			});
 			
-			//debug_internals('os-hour-stats filter value %o', new_doc);
+			debug_internals('os-hour-stats filter value %o', new_doc);
 			
 			throw new Error();
 			//next(new_doc, opts);
