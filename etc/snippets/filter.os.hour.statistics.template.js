@@ -13,12 +13,14 @@ module.exports = function(doc, opts, next){
 	debug_internals('os-hour-stats filter length %o', doc.length);
 	//debug_internals('os-hour-stats filter->next %o', next);
 	
-	//if(typeof(doc) == 'array' || doc instanceof Array || Array.isArray(doc)){
+	if(typeof(doc) == 'array' || doc instanceof Array || Array.isArray(doc)){
 		//let first = doc[0].doc.metadata.timestamp;
 		//let last = doc[doc.length - 1].doc.metadata.timestamp;
 		
 		//let values = {};
-		//Array.each(doc, function(d){
+		Array.each(doc, function(row){
+			debug_internals('os-hour-stats filter row %o', row);
+			
 			//let data = d.doc.data;
 			//let host = d.key[1];
 			
@@ -147,10 +149,10 @@ module.exports = function(doc, opts, next){
 				//next(new_doc, opts);
 			//});
 			
-		//});
+		});
 		
 		
 		
-	//}
+	}
 	
 };
