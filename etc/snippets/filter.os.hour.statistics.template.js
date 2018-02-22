@@ -84,15 +84,18 @@ module.exports = function(doc, opts, next){
 						Array.each(value, function(cpu, core){
 							//if(!speed[core]) speed[core] = [];
 							
-							debug_internals('os-hour-stats filter speed %o', cpu.times);
+							//debug_internals('os-hour-stats filter speed %o', cpu.times);
 						
 							//speed[core].push(cpu.speed)
 							speed.push(cpu.speed);
 							
 							let sample_time = {};
-							Object.each(cpu.times, function(time, key){//user,nice..etc
-								if(!times[key]) times[key] = [];
-								times[key].push(time);
+							Array.each(cpu.times, function(sample){//user,nice..etc
+								Object.each(sample, function(time, key){
+									if(!times[key]) times[key] = [];
+									times[key].push(time);
+								});
+								
 							});
 							
 						});
@@ -163,7 +166,7 @@ module.exports = function(doc, opts, next){
 				
 			});
 			
-			//debug_internals('os-hour-stats filter value %o', new_doc);
+			debug_internals('os-hour-stats filter value %o', new_doc);
 			
 			throw new Error();
 			//next(new_doc, opts);
