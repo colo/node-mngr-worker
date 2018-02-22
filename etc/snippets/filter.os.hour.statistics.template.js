@@ -65,18 +65,18 @@ module.exports = function(doc, opts, next){
 			});
 		});
 		
-		debug_internals('values %o', values);
-		throw new Error();
+		//debug_internals('values %o', values);
+		//throw new Error();
 		
-		//Object.each(values, function(data, host){
+		Object.each(values, function(data, host){
 			
-			//let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
+			let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
 			
-			//Object.each(data, function(value, key){
+			Object.each(data, function(value, key){
 				
-				//debug_internals('os-hour-stats filter value %o', value);
+				debug_internals('os-hour-stats filter value %o', value);
 				
-				//if(key == 'cpus' ){
+				if(key == 'cpus' ){
 					//let speed = [];
 					//let times = {};
 					//Array.each(value, function(sample){
@@ -131,34 +131,36 @@ module.exports = function(doc, opts, next){
 						//},
 						//times: times
 					//};
-				//}
-				//else{
-					//new_doc['data'][key] = {
-						//samples : value,
-						//min : ss.min(value),
-						//max : ss.max(value),
-						//avg : ss.mean(value),
-						//median : ss.median(value),
-						////harmonic : ss.harmonicMean(value),
-						////geometric : ss.geometricMean(value),
-						////variance : ss.variance(freemems),
-						////median_ab_deviation : ss.medianAbsoluteDeviation(value)
-					//};
-				//}
+				}
+				else{
+					new_doc['data'][key] = {
+						samples : value,
+						min : ss.min(value),
+						max : ss.max(value),
+						avg : ss.mean(value),
+						median : ss.median(value),
+						//harmonic : ss.harmonicMean(value),
+						//geometric : ss.geometricMean(value),
+						//variance : ss.variance(freemems),
+						//median_ab_deviation : ss.medianAbsoluteDeviation(value)
+					};
+				}
 				
-				//new_doc['metadata'] = {
-					//type: 'hour',
-					//host: host,
-					//range: {
-						//start: first,
-						//end: last
-					//}
-				//};
+				new_doc['metadata'] = {
+					type: 'hour',
+					host: host,
+					range: {
+						start: first,
+						end: last
+					}
+				};
 				
+				debug_internals('os-hour-stats filter value %o', new_doc);
+				throw new Error();
 				//next(new_doc, opts);
-			//});
+			});
 			
-		//});
+		});
 		
 		
 		
