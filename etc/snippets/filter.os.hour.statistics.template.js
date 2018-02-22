@@ -24,7 +24,7 @@ module.exports = function(doc, opts, next){
 			let data = row.doc.data;
 			let host = row.key[1];
 			
-			debug_internals('os-hour-stats filter row %s - %o', host, data);
+			//debug_internals('os-hour-stats filter row %s - %o', host, data);
 			
 			if(!values[host]) values[host] = {};
 			
