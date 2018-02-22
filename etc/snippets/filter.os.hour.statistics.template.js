@@ -57,6 +57,7 @@ module.exports = function(doc, opts, next){
 		});
 		
 		debug_internals('values %o', values);
+		throw new Error();
 		
 		//Object.each(values, function(data, host){
 			
