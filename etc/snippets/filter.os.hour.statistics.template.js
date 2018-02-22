@@ -102,10 +102,11 @@ module.exports = function(doc, opts, next){
 						
 					//});
 					
-					debug_internals('os-hour-stats filter times %o', times);
+					//debug_internals('os-hour-stats filter times %o', times);
 					
 					Object.each(times, function(time, key){//user,nice..etc
 						let data = {
+							samples: time,
 							min : ss.min(time),
 							max : ss.max(time),
 							avg : ss.mean(time),
@@ -115,7 +116,7 @@ module.exports = function(doc, opts, next){
 						times[key] = data;
 					});
 					
-					//debug_internals('os-hour-stats filter times %o', times);
+					debug_internals('os-hour-stats filter times %o', times);
 					
 					//Array.each(speed, function(cpu, core){//do the statictics
 						//let data = {
