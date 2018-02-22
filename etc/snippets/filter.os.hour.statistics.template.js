@@ -75,7 +75,7 @@ module.exports = function(doc, opts, next){
 			
 			Object.each(data, function(value, key){
 				
-				debug_internals('os-hour-stats filter value %o', value);
+				//debug_internals('os-hour-stats filter value %o', value);
 				
 				if(key == 'cpus' ){
 					let speed = [];
@@ -163,7 +163,7 @@ module.exports = function(doc, opts, next){
 			
 			//debug_internals('os-hour-stats filter value %o', new_doc);
 			
-			//throw new Error();
+			throw new Error();
 			//next(new_doc, opts);
 		});
 		
