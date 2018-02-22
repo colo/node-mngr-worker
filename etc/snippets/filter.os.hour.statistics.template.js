@@ -36,7 +36,7 @@ module.exports = function(doc, opts, next){
 					
 					if(key == 'cpus' ){
 						Array.each(value['samples'], function(core_data, core){
-							if(!values[host][key][core]) values[host][key][core] = [];
+							if(!values[host][key][core]) values[host][key][core] = {};
 							
 							Array.each(core_data, function(sample){//each "core_data" has an array of samples
 								if(!values[host][key][core]['speed']) values[host][key][core]['speed'] = [];
