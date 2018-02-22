@@ -68,9 +68,10 @@ module.exports = function(doc, opts, next){
 		debug_internals('values %o', values);
 		//throw new Error();
 		
-		let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
+		
 		
 		Object.each(values, function(data, host){
+			let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};	
 			
 			Object.each(data, function(value, key){
 				
