@@ -13,12 +13,12 @@ module.exports = {
 			],
 			requests: {
 				/**
-				 * runnign at 20 secs intervals
+				 * runnign at 20 min intervals
 				 * needs 3 runs to start analyzing from last stats (or from begining)
-				 * it takes 60 secs to complete, so it makes stats each minute
+				 * it takes 60 min to complete, so it makes stats each hour
 				 * */
-				//periodical: 20000,
-				periodical: 1000,
+				periodical: 200000,
+				//periodical: 1000,
 			},
 		},
 	}
@@ -34,8 +34,8 @@ module.exports = {
 				id: "output.os.stats.cradle",
 				conn: [
 					{
-						host: '127.0.0.1',
-						//host: '192.168.0.180',
+						//host: '127.0.0.1',
+						host: '192.168.0.180',
 						port: 5984,
 						db: 'stats',
 						opts: {
