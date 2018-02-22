@@ -18,7 +18,7 @@ module.exports = {
 				 * it takes 60 secs to complete, so it makes stats each minute
 				 * */
 				//periodical: 20000,
-				periodical: 5000,
+				periodical: 1000,
 			},
 		},
 	}

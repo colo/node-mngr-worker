@@ -139,14 +139,14 @@ module.exports = function(doc, opts, next){
 					//};
 				//}
 				
-				new_doc['metadata'] = {
-					type: 'hour',
-					host: host,
-					range: {
-						start: first,
-						end: last
-					}
-				};
+				//new_doc['metadata'] = {
+					//type: 'hour',
+					//host: host,
+					//range: {
+						//start: first,
+						//end: last
+					//}
+				//};
 				
 				//next(new_doc, opts);
 			//});
