@@ -116,18 +116,18 @@ module.exports = function(doc, opts, next){
 						times[key] = data;
 					});
 					
-					debug_internals('os-hour-stats filter times %o', times);
+					debug_internals('os-hour-stats filter speed %o', speed);
 					
-					//Array.each(speed, function(cpu, core){//do the statictics
-						//let data = {
-							//min : ss.min(cpu),
-							//max : ss.max(cpu),
-							//avg : ss.mean(cpu),
-							//median : ss.median(cpu),
-						//};
+					Array.each(speed, function(cpu, core){//do the statictics
+						let data = {
+							min : ss.min(cpu),
+							max : ss.max(cpu),
+							avg : ss.mean(cpu),
+							median : ss.median(cpu),
+						};
 						
-						//speed[core] = data;
-					//});
+						speed[core] = data;
+					});
 					
 					
 					new_doc['data'][key] = {
