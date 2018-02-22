@@ -56,6 +56,8 @@ module.exports = function(doc, opts, next){
 			});
 		});
 		
+		debug_internals('values %o', values);
+		
 		//Object.each(values, function(data, host){
 			
 			//let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
