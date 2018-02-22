@@ -84,7 +84,7 @@ module.exports = function(doc, opts, next){
 						Array.each(value, function(cpu, core){
 							//if(!speed[core]) speed[core] = [];
 							
-							debug_internals('os-hour-stats filter speed %o', cpu);
+							//debug_internals('os-hour-stats filter speed %o', cpu);
 						
 							//speed[core].push(cpu.speed)
 							speed.push(cpu.speed);
@@ -109,6 +109,8 @@ module.exports = function(doc, opts, next){
 						
 						times[key] = data;
 					});
+					
+					debug_internals('os-hour-stats filter times %o', times);
 					
 					//Array.each(speed, function(cpu, core){//do the statictics
 						//let data = {
