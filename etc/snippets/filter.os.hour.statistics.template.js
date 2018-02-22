@@ -26,40 +26,35 @@ module.exports = function(doc, opts, next){
 			
 			debug_internals('os-hour-stats filter row %s - %o', host, data);
 			
-			//if(!values[host]) values[host] = {};
+			if(!values[host]) values[host] = {};
 			
 			//debug_internals('os-hour-stats filter get HOST %o', row.key[1]);
 			
-			//Object.each(data, function(value, key){
+			Object.each(data, function(value, key){
 				//if(key != 'networkInterfaces' && key != 'totalmem'){
-					//if(!values[host][key]) values[host][key] = [];
+					if(!values[host][key]) values[host][key] = [];
 					
-					//if(key == 'cpus' ){
-						//Array.each(value, function(cpu, core){
-							//if(!values[host][key][core]) values[host][key][core] = [];
+					if(key == 'cpus' ){
+						Array.each(value['samples'], function(cpu, core){
+							if(!values[host][key][core]) values[host][key][core] = [];
 							
-							//let data = {};
-							//data = {
-								//speed: cpu.speed,
-								//times: cpu.times
-							//};
+							let data = { speed: [], times: []};
+							data.speed.append(cpu.speed);
+							data.times.append(cpu.times);
 							
-							//debug_internals('os-hour-stats filter core %d', core);
-							//values[host][key][core].push(data);
-						//});//iterate on each core
-					//}
-					//else if(key == 'loadavg'){//keep only "last minute" value
-						//values[host][key].push(value[0]);
-					//}
-					//else{
-						//values[host][key].push(value);
-					//}
+							debug_internals('os-hour-stats filter core %d', core);
+							values[host][key][core].push(data);
+						});//iterate on each core
+					}
+					else{
+						values[host][key].append(value['samples']);
+					}
 					
 				//}	
 				
 				
-			//});
-		//});
+			});
+		});
 		
 		//Object.each(values, function(data, host){
 			
@@ -151,7 +146,7 @@ module.exports = function(doc, opts, next){
 				//next(new_doc, opts);
 			//});
 			
-		});
+		//});
 		
 		
 		
