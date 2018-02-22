@@ -14,19 +14,21 @@ module.exports = function(doc, opts, next){
 	//debug_internals('os-hour-stats filter->next %o', next);
 	
 	if(typeof(doc) == 'array' || doc instanceof Array || Array.isArray(doc)){
-		//let first = doc[0].doc.metadata.timestamp;
-		//let last = doc[doc.length - 1].doc.metadata.timestamp;
+		let first = doc[0].doc.metadata.timestamp;
+		let last = doc[doc.length - 1].doc.metadata.timestamp;
 		
-		//let values = {};
+		let values = {};
 		Array.each(doc, function(row){
-			debug_internals('os-hour-stats filter row %o', row);
 			
-			//let data = d.doc.data;
-			//let host = d.key[1];
+			let metadata = row.doc.metadata;
+			let data = row.doc.data;
+			let host = row.key[1];
+			
+			debug_internals('os-hour-stats filter row %s - %o', host, data);
 			
 			//if(!values[host]) values[host] = {};
 			
-			//debug_internals('os-hour-stats filter get HOST %o', d.key[1]);
+			//debug_internals('os-hour-stats filter get HOST %o', row.key[1]);
 			
 			//Object.each(data, function(value, key){
 				//if(key != 'networkInterfaces' && key != 'totalmem'){
@@ -137,14 +139,14 @@ module.exports = function(doc, opts, next){
 					//};
 				//}
 				
-				//new_doc['metadata'] = {
-					//type: 'minute',
-					//host: host,
-					//range: {
-						//start: first,
-						//end: last
-					//}
-				//};
+				new_doc['metadata'] = {
+					type: 'hour',
+					host: host,
+					range: {
+						start: first,
+						end: last
+					}
+				};
 				
 				//next(new_doc, opts);
 			//});
