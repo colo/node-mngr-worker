@@ -46,9 +46,9 @@ module.exports = function(doc, opts, next){
 								//data.speed.append(sample.speed);
 								//data.times.append(sample.times);
 								
-								//debug_internals('os-hour-stats filter core %d', core);
-								values[host][key][core]['speed'].append(sample.speed);
-								values[host][key][core]['times'].append(sample.times);
+								debug_internals('os-hour-stats filter sample %o', sample);
+								//values[host][key][core]['speed'].append(sample.speed);
+								//values[host][key][core]['times'].append(sample.times);
 								
 							});
 							
