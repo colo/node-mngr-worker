@@ -90,8 +90,8 @@ module.exports = function(doc, opts, next){
 							speed.push(cpu.speed);
 							
 							let sample_time = {};
-							Array.each(cpu.times, function(sample){//user,nice..etc
-								Object.each(sample, function(time, key){
+							Array.each(cpu.times, function(sample){
+								Object.each(sample, function(time, key){//user,nice..etc
 									if(!times[key]) times[key] = [];
 									times[key].push(time);
 								});
@@ -102,7 +102,7 @@ module.exports = function(doc, opts, next){
 						
 					//});
 					
-					//debug_internals('os-hour-stats filter times %o', times);
+					debug_internals('os-hour-stats filter times %o', times);
 					
 					Object.each(times, function(time, key){//user,nice..etc
 						let data = {
@@ -115,7 +115,7 @@ module.exports = function(doc, opts, next){
 						times[key] = data;
 					});
 					
-					
+					//debug_internals('os-hour-stats filter times %o', times);
 					
 					//Array.each(speed, function(cpu, core){//do the statictics
 						//let data = {
@@ -166,7 +166,7 @@ module.exports = function(doc, opts, next){
 				
 			});
 			
-			debug_internals('os-hour-stats filter value %o', new_doc);
+			//debug_internals('os-hour-stats filter value %o', new_doc);
 			
 			throw new Error();
 			//next(new_doc, opts);
