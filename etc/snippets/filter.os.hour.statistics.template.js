@@ -35,15 +35,24 @@ module.exports = function(doc, opts, next){
 					if(!values[host][key]) values[host][key] = [];
 					
 					if(key == 'cpus' ){
-						Array.each(value['samples'], function(cpu, core){
+						Array.each(value['samples'], function(core_data, core){
 							if(!values[host][key][core]) values[host][key][core] = [];
 							
-							let data = { speed: [], times: []};
-							data.speed.append(cpu.speed);
-							data.times.append(cpu.times);
+							Array.each(core_data, function(sample){//each "core_data" has an array of samples
+								if(!values[host][key][core]['speed']) values[host][key][core]['speed'] = [];
+								if(!values[host][key][core]['times']) values[host][key][core]['times'] = [];
+								
+								//let data = { speed: [], times: []};
+								//data.speed.append(sample.speed);
+								//data.times.append(sample.times);
+								
+								//debug_internals('os-hour-stats filter core %d', core);
+								values[host][key][core]['speed'].append(sample.speed);
+								values[host][key][core]['times'].append(sample.times);
+								
+							});
 							
-							debug_internals('os-hour-stats filter core %d', core);
-							values[host][key][core].push(data);
+							
 						});//iterate on each core
 					}
 					else{
