@@ -165,8 +165,8 @@ module.exports = function(doc, opts, next){
 			
 			debug_internals('os-hour-stats filter value %o', new_doc);
 			
-			throw new Error();
-			//next(new_doc, opts);
+			//throw new Error();
+			next(new_doc, opts);
 		});
 		
 		
