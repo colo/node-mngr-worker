@@ -65,7 +65,7 @@ module.exports = function(doc, opts, next){
 			});
 		});
 		
-		//debug_internals('values %o', values);
+		debug_internals('values %o', values);
 		//throw new Error();
 		
 		Object.each(values, function(data, host){
@@ -77,8 +77,8 @@ module.exports = function(doc, opts, next){
 				debug_internals('os-hour-stats filter value %o', value);
 				
 				if(key == 'cpus' ){
-					//let speed = [];
-					//let times = {};
+					let speed = [];
+					let times = {};
 					//Array.each(value, function(sample){
 						//Array.each(sample, function(cpu, core){
 							////if(!speed[core]) speed[core] = [];
