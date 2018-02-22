@@ -78,60 +78,60 @@ module.exports = function(doc, opts, next){
 				debug_internals('os-hour-stats filter value %o', value);
 				
 				if(key == 'cpus' ){
-					//let speed = [];
-					//let times = {};
-					////Array.each(value, function(sample){
-						//Array.each(value, function(cpu, core){
-							////if(!speed[core]) speed[core] = [];
+					let speed = [];
+					let times = {};
+					//Array.each(value, function(sample){
+						Array.each(value, function(cpu, core){
+							//if(!speed[core]) speed[core] = [];
 							
-							//debug_internals('os-hour-stats filter speed %o', cpu);
+							debug_internals('os-hour-stats filter speed %o', cpu);
 						
-							////speed[core].push(cpu.speed)
-							//speed.push(cpu.speed);
+							//speed[core].push(cpu.speed)
+							speed.push(cpu.speed);
 							
-							//let sample_time = {};
-							//Object.each(cpu.times, function(time, key){//user,nice..etc
-								//if(!times[key]) times[key] = [];
-								//times[key].push(time);
-							//});
+							let sample_time = {};
+							Object.each(cpu.times, function(time, key){//user,nice..etc
+								if(!times[key]) times[key] = [];
+								times[key].push(time);
+							});
 							
-						//});
+						});
 						
-					////});
-					
-					//Object.each(times, function(time, key){//user,nice..etc
-						//let data = {
-							//min : ss.min(time),
-							//max : ss.max(time),
-							//avg : ss.mean(time),
-							//median : ss.median(time),
-						//};
-						
-						//times[key] = data;
 					//});
 					
-					////Array.each(speed, function(cpu, core){//do the statictics
-						////let data = {
-							////min : ss.min(cpu),
-							////max : ss.max(cpu),
-							////avg : ss.mean(cpu),
-							////median : ss.median(cpu),
-						////};
+					Object.each(times, function(time, key){//user,nice..etc
+						let data = {
+							min : ss.min(time),
+							max : ss.max(time),
+							avg : ss.mean(time),
+							median : ss.median(time),
+						};
 						
-						////speed[core] = data;
-					////});
+						times[key] = data;
+					});
+					
+					//Array.each(speed, function(cpu, core){//do the statictics
+						//let data = {
+							//min : ss.min(cpu),
+							//max : ss.max(cpu),
+							//avg : ss.mean(cpu),
+							//median : ss.median(cpu),
+						//};
+						
+						//speed[core] = data;
+					//});
 					
 					
-					//new_doc['data'][key] = {
-						//samples: value,
-						//speed: {
-							//min : ss.min(speed),
-							//max : ss.max(speed),
-							//avg : ss.mean(speed),
-							//median : ss.median(speed),
-						//},
-						//times: times
-					//};
+					new_doc['data'][key] = {
+						samples: value,
+						speed: {
+							min : ss.min(speed),
+							max : ss.max(speed),
+							avg : ss.mean(speed),
+							median : ss.median(speed),
+						},
+						times: times
+					};
 				}
 				else{
 					new_doc['data'][key] = {
@@ -159,9 +159,9 @@ module.exports = function(doc, opts, next){
 				
 			});
 			
-			debug_internals('os-hour-stats filter value %o', new_doc);
+			//debug_internals('os-hour-stats filter value %o', new_doc);
 			
-			throw new Error();
+			//throw new Error();
 			//next(new_doc, opts);
 		});
 		
