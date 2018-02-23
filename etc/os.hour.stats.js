@@ -9,7 +9,9 @@ module.exports = {
 					host:'192.168.0.180',
 					//host:'127.0.0.1',
 					port: 5984 ,
-					db: 'stats'}
+					db: 'stats',
+					load: ['apps/os/stats/hour/']
+				}
 			],
 			requests: {
 				/**
@@ -17,8 +19,8 @@ module.exports = {
 				 * needs 3 runs to start analyzing from last stats (or from begining)
 				 * it takes 60 min to complete, so it makes stats each hour
 				 * */
-				periodical: 200000,
-				//periodical: 1000,
+				//periodical: 1200000,
+				periodical: 2000,//test
 			},
 		},
 	}

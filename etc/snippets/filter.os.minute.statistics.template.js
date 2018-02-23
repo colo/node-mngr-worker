@@ -88,50 +88,51 @@ module.exports = function(doc, opts, next){
 					});
 					
 					Object.each(times, function(time, key){//user,nice..etc
+						let min = ss.min(time);
+						let max = ss.max(time);
+						
 						let data = {
+							samples: time,
 							min : ss.min(time),
 							max : ss.max(time),
-							avg : ss.mean(time),
+							mean : ss.mean(time),
 							median : ss.median(time),
+							mode : ss.mode(time),
+							range: max - min,
 						};
 						
 						times[key] = data;
 					});
 					
-					//Array.each(speed, function(cpu, core){//do the statictics
-						//let data = {
-							//min : ss.min(cpu),
-							//max : ss.max(cpu),
-							//avg : ss.mean(cpu),
-							//median : ss.median(cpu),
-						//};
-						
-						//speed[core] = data;
-					//});
-					
+					let min = ss.min(speed);
+					let max = ss.max(speed);
 					
 					new_doc['data'][key] = {
-						samples: value,
+						//samples: value,
 						speed: {
+							samples: speed,
 							min : ss.min(speed),
 							max : ss.max(speed),
-							avg : ss.mean(speed),
+							mean : ss.mean(speed),
 							median : ss.median(speed),
+							mode : ss.mode(speed),
+							range: max - min,
 						},
 						times: times
 					};
 				}
 				else{
+					let min = ss.min(value);
+					let max = ss.max(value);
+					
 					new_doc['data'][key] = {
 						samples : value,
-						min : ss.min(value),
-						max : ss.max(value),
-						avg : ss.mean(value),
+						min : min,
+						max : max,
+						mean : ss.mean(value),
 						median : ss.median(value),
-						//harmonic : ss.harmonicMean(value),
-						//geometric : ss.geometricMean(value),
-						//variance : ss.variance(freemems),
-						//median_ab_deviation : ss.medianAbsoluteDeviation(value)
+						mode : ss.mode(value),
+						range: max - min
 					};
 				}
 				
