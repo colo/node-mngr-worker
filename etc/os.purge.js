@@ -28,29 +28,29 @@ module.exports = {
 		//require('./snippets/filter.os.statistics.template'),
 		//require('./snippets/filter.sanitize.template'),
 	//],
-	//output: [
-		////require('./snippets/output.stdout.template'),
-		//{
-			//cradle: {
-				//id: "output.os.stats.cradle",
-				//conn: [
-					//{
-						////host: '127.0.0.1',
-						//host: '192.168.0.180',
-						//port: 5984,
-						//db: 'stats',
-						//opts: {
-							//cache: true,
-							//raw: false,
-							//forceSave: true,
-						//}
-					//},
-				//],
-				//buffer:{
-					//size: 0,
-					//expire:0
-				//}
-			//}
-		//}
-	//]
+	output: [
+		//require('./snippets/output.stdout.template'),
+		{
+			cradle: {
+				id: "output.os.stats.cradle",
+				conn: [
+					{
+						//host: '127.0.0.1',
+						host: '192.168.0.180',
+						port: 5984,
+						db: 'stats',
+						opts: {
+							cache: true,
+							raw: false,
+							forceSave: true,
+						}
+					},
+				],
+				buffer:{
+					size: 100,
+					expire: 1000
+				}
+			}
+		}
+	]
 }
