@@ -28,7 +28,7 @@ module.exports = {
 		//require('./snippets/filter.os.statistics.template'),
 		//require('./snippets/filter.sanitize.template'),
 	//],
-	output: [
+	/**output: [
 		//require('./snippets/output.stdout.template'),
 		{
 			cradle: {
@@ -53,4 +53,5 @@ module.exports = {
 			}
 		}
 	]
+	**/
 }
