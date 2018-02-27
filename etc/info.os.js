@@ -27,8 +27,8 @@ module.exports = {
 				id: "output.os.cradle",
 				conn: [
 					{
-						//host: '127.0.0.1',
-						host: '192.168.0.180',
+						host: '127.0.0.1',
+						//host: '192.168.0.180',
 						port: 5984,
 						db: 'dashboard',
 						opts: {

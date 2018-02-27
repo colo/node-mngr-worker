@@ -10,7 +10,7 @@ module.exports = {
 					//host:'127.0.0.1',
 					port: 5984 ,
 					db: 'dashboard',
-					load: ['apps/os/purge/daily/'],
+					load: ['apps/os/purge/historical/'],
 				}
 			],
 			requests: {
