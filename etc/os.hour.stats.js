@@ -1,3 +1,7 @@
+'use stric'
+
+const path = require('path');
+
 module.exports = {
  input: [
 	{
@@ -6,10 +10,11 @@ module.exports = {
 			conn: [
 				{
 					scheme: 'cradle',
-					host:'192.168.0.180',
-					//host:'127.0.0.1',
+					//host:'192.168.0.180',
+					host:'127.0.0.1',
 					port: 5984 ,
 					db: 'stats',
+					module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/cradle')),
 					load: ['apps/os/stats/hour/']
 				}
 			],
@@ -47,6 +52,7 @@ module.exports = {
 						}
 					},
 				],
+				module: require(path.join(process.cwd(), 'lib/pipeline/output/cradle')),
 				buffer:{
 					size: 0,
 					expire:0

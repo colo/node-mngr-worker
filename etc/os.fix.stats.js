@@ -1,3 +1,7 @@
+'use stric'
+
+const path = require('path');
+
 var debug = require('debug')('filter:fix');
 var debug_internals = require('debug')('filter:fix:Internals');
 
@@ -9,10 +13,12 @@ module.exports = {
 			conn: [
 				{
 					scheme: 'cradle',
-					host:'192.168.0.180',
-					//host:'127.0.0.1',
+					//host:'192.168.0.180',
+					host:'127.0.0.1',
 					port: 5984 ,
-					db: 'stats'}
+					db: 'stats',
+					module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/cradle')),
+				}
 			],
 			
 		},
@@ -106,6 +112,7 @@ module.exports = {
 						}
 					},
 				],
+				module: require(path.join(process.cwd(), 'lib/pipeline/output/cradle')),
 				buffer:{
 					size: 0,
 					expire:0

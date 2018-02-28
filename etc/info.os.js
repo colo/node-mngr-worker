@@ -1,3 +1,7 @@
+'use stric'
+
+const path = require('path');
+
 module.exports = {
  input: [
 	{
@@ -8,6 +12,7 @@ module.exports = {
 					scheme: 'http',
 					host:'127.0.0.1',
 					port: 8081,
+					module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/http')),
 					load: ['apps/info/os/']
 				}
 			],
@@ -35,9 +40,10 @@ module.exports = {
 							cache: true,
 							raw: false,
 							forceSave: true,
-						}
+						},
 					},
-				]
+				],
+				module: require(path.join(process.cwd(), 'lib/pipeline/output/cradle')),
 			}
 		}
 	]
