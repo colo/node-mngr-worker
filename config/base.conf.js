@@ -41,9 +41,9 @@ module.exports = new Class({
 		
 		logs: null,
 		
-		authorization: {
-			config: path.join(__dirname,'./rbac.json'),
-		},
+		//authorization: {
+			//config: path.join(__dirname,'./rbac.json'),
+		//},
 		
 		params: {
 			event: /exit|resume|suspend|once|range/

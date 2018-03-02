@@ -29,9 +29,9 @@ module.exports = {
 		sendImmediately: false,
 	},
 	
-	authorization: {
-		config: path.join(__dirname,'../../rbac.json'),
-	},
+	//authorization: {
+		//config: path.join(__dirname,'../../rbac.json'),
+	//},
 	
 	api: {
 		version: '1.0.0',
