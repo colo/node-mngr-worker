@@ -11,7 +11,7 @@ module.exports = {
 				{
 					scheme: 'http',
 					host:'127.0.0.1',
-					port: 8081,
+					port: 8083,
 					module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/http')),
 					load: ['apps/info/os/']
 				}
