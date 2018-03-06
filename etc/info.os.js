@@ -44,6 +44,10 @@ module.exports = {
 					},
 				],
 				module: require(path.join(process.cwd(), 'lib/pipeline/output/cradle')),
+        buffer:{
+					size: 0,
+					expire:0
+				}
 			}
 		}
 	]
