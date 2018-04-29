@@ -28,7 +28,7 @@ module.exports = {
 				 * @use node-cron to start on 0,20,40....or it would start messuring on a random timestamp
 				 * */
 				periodical: function(dispatch){
-					return cron.schedule('0,20,40 * * * * *', dispatch);//every 20 secs
+					return cron.schedule('19,39,59 * * * * *', dispatch);//every 20 secs
 				}
 				//periodical: 20000,
 				//periodical: 2000,//test
