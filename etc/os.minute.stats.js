@@ -2,6 +2,8 @@
 
 const path = require('path');
 
+var cron = require('node-cron');
+
 module.exports = {
  input: [
 	{
@@ -24,9 +26,13 @@ module.exports = {
 				 * needs 3 runs to start analyzing from last stats (or from begining)
 				 * it takes 60 secs to complete, so it makes stats each minute
 				 * */
-				periodical: 20000,
+				 periodical: function(dispatch){
+					return cron.schedule('0,20,40 * * * * *', dispatch);//every 20 secs
+				}
+				//periodical: 20000,
 				//periodical: 2000,//test
 			},
+			
 		},
 	}
  ],
