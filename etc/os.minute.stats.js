@@ -25,6 +25,7 @@ module.exports = {
 				 * runnign at 20 secs intervals
 				 * needs 3 runs to start analyzing from last stats (or from begining)
 				 * it takes 60 secs to complete, so it makes stats each minute
+				 * @use node-cron to start on 0,20,40....or it would start messuring on a random timestamp
 				 * */
 				periodical: function(dispatch){
 					return cron.schedule('0,20,40 * * * * *', dispatch);//every 20 secs
