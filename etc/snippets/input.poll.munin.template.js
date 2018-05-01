@@ -6,7 +6,7 @@ module.exports = {
 				scheme: 'munin',
 				host:'127.0.0.1',
 				port: 4949,
-				module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/muin')),
+				module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/munin')),
 				load: [],
 			}
 		],
