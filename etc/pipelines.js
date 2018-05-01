@@ -1,5 +1,5 @@
 module.exports = [
-    require('./munin.js'),
+    require('./local/munin.js'),
     //require('./info.os'),
     //require('./os.minute.stats'),
     ////require('./os.fix.stats'),
