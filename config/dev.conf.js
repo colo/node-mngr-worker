@@ -12,7 +12,7 @@ module.exports = new Class({
   
   options: {
 		
-		pipelines: require('../etc/pipelines'),
+		pipelines: require('../devel/etc/pipelines'),
 		
 		 
 		authentication: {
