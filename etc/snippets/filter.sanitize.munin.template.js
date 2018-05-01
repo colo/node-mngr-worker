@@ -6,7 +6,9 @@ module.exports = function(doc, opts, next){//sanitize.munin + metadata
 	
 	debug_internals('TO _sanitize.munin_doc opts %o', opts);
 	
-	let doc_id = input.options.id +'.'+input_type.options.id +'.'+doc.id;
+	let doc_id = input.options.id +'.'+input_type.options.id;
+	doc_id += (doc.id) ? '.'+doc.id : '';
+	
 	let timestamp = Date.now();
 	
 	if(!doc.data){
