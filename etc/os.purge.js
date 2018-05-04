@@ -2,6 +2,7 @@
 
 const path = require('path');
 
+var cron = require('node-cron');
 
 module.exports = {
  input: [
@@ -11,7 +12,7 @@ module.exports = {
 			conn: [
 				{
 					scheme: 'cradle',
-					//host:'192.168.0.180',
+					// host:'192.168.0.180',
 					host:'127.0.0.1',
 					port: 5984 ,
 					db: 'dashboard',
@@ -25,7 +26,10 @@ module.exports = {
 				 * needs 3 runs to start analyzing from last stats (or from begining)
 				 * it takes 60 secs to complete, so it makes stats each minute
 				 * */
-				periodical: 20000,
+				// periodical: 2000,//test
+        periodical: function(dispatch){
+					return cron.schedule('19,39,59 * * * * *', dispatch);//every 20 secs
+				}
 			},
 		},
 	}
