@@ -33,7 +33,7 @@ module.exports = {
 				//periodical: 20000,
 				//periodical: 2000,//test
 			},
-			
+
 		},
 	}
  ],
@@ -48,10 +48,10 @@ module.exports = {
 				id: "output.os.stats.cradle",
 				conn: [
 					{
-						//host: '127.0.0.1',
-						host: '192.168.0.40',
+						host: '127.0.0.1',
+						// host: '192.168.0.40',
 						port: 5984,
-						db: 'stats',
+						db: 'dashboard',
 						opts: {
 							cache: true,
 							raw: false,

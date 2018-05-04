@@ -13,7 +13,7 @@ module.exports = {
 					//host:'192.168.0.180',
 					host:'127.0.0.1',
 					port: 5984 ,
-					db: 'stats',
+					db: 'dashboard',
 					module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/cradle')),
 					load: ['apps/os/stats/hour/']
 				}
@@ -41,10 +41,10 @@ module.exports = {
 				id: "output.os.stats.cradle",
 				conn: [
 					{
-						//host: '127.0.0.1',
-						host: '192.168.0.40',
+						host: '127.0.0.1',
+						// host: '192.168.0.40',
 						port: 5984,
-						db: 'stats',
+						db: 'dashboard',
 						opts: {
 							cache: true,
 							raw: false,
