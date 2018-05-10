@@ -17,28 +17,26 @@ module.exports = {
 					port: 5984 ,
 					db: 'dashboard',
 					module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/cradle')),
-					load: ['apps/os/stats/minute/']
+					load: ['apps/os/stats/hour/']
 				}
 			],
 			requests: {
 				/**
-				 * runnign at 20 secs intervals
+				 * runnign at 20 min intervals
 				 * needs 3 runs to start analyzing from last stats (or from begining)
-				 * it takes 60 secs to complete, so it makes stats each minute
-				 * @use node-cron to start on 0,20,40....or it would start messuring on a random timestamp
+				 * it takes 60 min to complete, so it makes stats each hour
 				 * */
-				periodical: function(dispatch){
-					return cron.schedule('19,39,59 * * * * *', dispatch);//every 20 secs
-				}
-				//periodical: 20000,
+				// periodical: 1200000,
 				//periodical: 2000,//test
+        periodical: function(dispatch){
+					return cron.schedule('19,39,59 * * * *', dispatch);//every 20 min
+				}
 			},
-
 		},
 	}
  ],
  filters: [
-		require('./snippets/filter.os.minute.statistics.template'),
+		require('./snippets/filter.os.historical.hour.template'),
 		require('./snippets/filter.sanitize.template'),
 	],
 	output: [
