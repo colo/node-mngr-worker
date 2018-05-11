@@ -17,7 +17,7 @@ module.exports = {
 					port: 5984 ,
 					db: 'dashboard',
 					module: require(path.join(process.cwd(), 'lib/pipeline/input/poller/poll/cradle')),
-					load: ['apps/os/stats/minute/']
+					load: ['apps/os/historical/minute/']
 				}
 			],
 			requests: {
