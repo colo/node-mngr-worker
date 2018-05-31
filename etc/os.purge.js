@@ -28,7 +28,7 @@ module.exports = {
 				 * */
 				// periodical: 2000,//test
         periodical: function(dispatch){
-					return cron.schedule('19,39,59 * * * * *', dispatch);//every 20 secs
+					return cron.schedule('19,39,59 * * * *', dispatch);//every 20 mins
 				}
 			},
 		},
