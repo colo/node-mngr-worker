@@ -5,5 +5,6 @@ module.exports = [
     // ////require('./os.historical.fix'),
     //require('./os.historical.hour'),
     //require('./os.purge'),
-    require('./config.alerts'),
+    // require('./config.alerts'),
+    require('./os.alerts'),
 ]
