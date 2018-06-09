@@ -5,7 +5,7 @@ var debug_internals = require('debug')('filter:os-stats:Internals');
  * recives an array of OS docs and does some statictics on freemem
  *
  **/
-module.exports = function(doc, opts, next){
+module.exports = function(doc, opts, next, pipeline){
 
 	var ss = require('simple-statistics');
 
@@ -170,7 +170,7 @@ module.exports = function(doc, opts, next){
 					}
 				};
 
-				next(new_doc, opts);
+				next(new_doc, opts, next, pipeline);
 			});
 
 		});
