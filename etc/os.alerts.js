@@ -4,8 +4,11 @@ const path = require('path');
 
 var cron = require('node-cron');
 
-var current_os = {}
-var last_historical_minute = {}
+var stats = {}
+var updated_stats = {}
+
+// var current_os = {}
+// var last_historical_minute = {}
 
 /**
 * from os.stats.vue
@@ -107,7 +110,7 @@ var DefaultChart = {
         && chart.watch && chart.watch.value
         && stat[0].value[0][chart.watch.value]
       ){
-        // console.log('Array.isArray(stat[0].value)', stat[0].value)
+        // //console.log('Array.isArray(stat[0].value)', stat[0].value)
         Object.each(stat[0].value[0][chart.watch.value], function(tmp, tmp_key){
           chart.options.labels.push(tmp_key)
         })
@@ -192,7 +195,7 @@ var _dynamic_charts = {
       * @trasnform: diff between each value against its prev one
       */
       transform: function(values){
-        // console.log('transform: ', values)
+        // //console.log('transform: ', values)
 
         let transformed = []
         let prev = {idle: 0, total: 0, timestamp: 0 }
@@ -213,13 +216,13 @@ var _dynamic_charts = {
           let diff_total = current.total - prev.total;
           let diff_idle = current.idle - prev.idle;
 
-          // ////console.log('transform: ', current, prev)
+          // //////console.log('transform: ', current, prev)
 
           //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
           let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
 
           if(percentage > 100){
-            console.log('cpu transform: ', diff_time, diff_total, diff_idle)
+            //console.log('cpu transform: ', diff_time, diff_total, diff_idle)
           }
 
           transform.value.times.usage = (percentage > 100) ? 100 : percentage
@@ -237,6 +240,7 @@ var _dynamic_charts = {
   "loadavg": Object.merge(Object.clone(DefaultChart),{
     match: /.*os\.loadavg/,
     watch: {
+      merge: true,
       // // exclude: /samples/,
       // exclude: /range|mode/,
 
@@ -244,7 +248,7 @@ var _dynamic_charts = {
       * returns  a bigger array (values.length * samples.length) and add each property
       */
       transform: function(values){
-        console.log('loadavg transform: ', values)
+        //console.log('loadavg transform: ', values)
 
 
         let transformed = []
@@ -284,7 +288,7 @@ var _dynamic_charts = {
         //   transformed.push(transform)
         // })
         //
-        // // console.log('transformed: ', transformed)
+        // // //console.log('transformed: ', transformed)
         // //
         // return transformed
         return values
@@ -302,7 +306,7 @@ var _dynamic_charts = {
   //     * returns  a bigger array (values.length * samples.length) and add each property
   //     */
   //     transform: function(values){
-  //       console.log('loadavg_minute transform: ', values)
+  //       //console.log('loadavg_minute transform: ', values)
   //
   //
   //       let transformed = []
@@ -342,7 +346,7 @@ var _dynamic_charts = {
   //         transformed.push(transform)
   //       })
   //
-  //       // console.log('transformed: ', transformed)
+  //       // //console.log('transformed: ', transformed)
   //       //
   //       return transformed
   //       // return values
@@ -573,22 +577,44 @@ generic_data_watcher  = function(current, chart, name){
 
     }
 
-    console.log('update_chart_stat', name, data)
-    // update_chart_stat(name, data)
+    update_chart_stat(name, data)
+
+    // //console.log('update_chart_stat', name)
+    // //console.log(updated_stats.elk.os)
 
   }
 
 
 }
 
+var update_chart_stat = function(name, data, value){
+  value = value || updated_stats
+
+  // //console.log('name', name.substring(name.indexOf('.')+ 1,  name.length))
+  // //console.log('1 name', name)
+  if(name.indexOf('.') > -1){
+    let key = name.substring(0, name.indexOf('.'))
+    name = name.substring(name.indexOf('.')+ 1,  name.length)
+    // //console.log('2 name', name)
+    if(!value[key])
+      value[key] = {}
+
+    value = update_chart_stat(name, data, value[key])
+  }
+  else{
+    value[name] = data
+  }
+
+}
+
 var _current_nested_array = function (current, watcher, name){
 
   let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
-  //////////////console.log('generic_data_watcher isNanN', name, val, index)
+  ////////////////console.log('generic_data_watcher isNanN', name, val, index)
 
   let val_current = []
   Array.each(current, function(item){
-    // //////////////console.log('CPU item', item)
+    // ////////////////console.log('CPU item', item)
 
     let value = {}
     Array.each(item.value, function(val, value_index){//each cpu
@@ -614,7 +640,7 @@ var _current_nested_array = function (current, watcher, name){
 
   }.bind(this))
 
-  // //////////////console.log('CPU new current', val_current)
+  // ////////////////console.log('CPU new current', val_current)
 
   return val_current
 }
@@ -776,137 +802,191 @@ module.exports = {
   },
  ],
  filters: [
-		/**
-    * just send each doc to its corresponding filter
-    */
+     /**
+     * code taken from os.stats.vue
+     **/
 		function(doc, opts, next, pipeline){
-      // console.log('os alerts filter', )
+      let extracted = {}
 
       if(doc[0].doc.metadata.path != 'os.historical'){
+        extracted = Object.clone(extract_data_os_doc(doc))
+        if(!pipeline.inputs[1].conn_pollers[0].minute.hosts[extracted.host])
+          pipeline.inputs[1].conn_pollers[0].minute.hosts[extracted.host] = 1
 
-        process_os_doc(doc, opts, next, pipeline)
+        // process_os_doc(doc, opts, next, pipeline)
 
       }
       else{
-        process_historical_minute_doc(doc, opts, next, pipeline)
+        extracted = Object.clone(extract_data_os_historical_doc(doc))
+        extracted.path = extracted.path.replace('/', '.')
+
+        /**
+        * clean hosts property on each iteration, so we only search on current hosts availables
+        **/
+        Object.each(pipeline.inputs[1].conn_pollers[0].minute.hosts, function(value, host){
+          delete pipeline.inputs[1].conn_pollers[0].minute.hosts[host]
+        })
+
+        // process_historical_minute_doc(doc, opts, next, pipeline)
       }
+
+      Object.each(extracted.keys, function(data, key){
+        if(!stats[extracted.host])
+          stats[extracted.host] = {}
+
+        if(!stats[extracted.host][extracted.path])
+          stats[extracted.host][extracted.path] = {}
+
+        stats[extracted.host][extracted.path][key] = data
+
+      }.bind(this))
+
+      initialize_all_charts(stats)
+
+
+
+      Object.each(stats, function(host_data, host){
+        Object.each(host_data, function(path_data, path){
+          Object.each(path_data, function(data, key){
+            let name = host+'.'+path+'.'+key
+            if(
+              (
+                ( dynamic_blacklist
+                && dynamic_blacklist.test(name) == false )
+              || ( dynamic_whitelist
+                && dynamic_whitelist.test(name) == true )
+              )
+              && (
+                !static_charts
+                || Object.keys(static_charts).contains(name) == false
+              )
+            ){
+              //console.log('host.path.key', name)
+              generic_data_watcher(data, charts[name], name)
+            }
+          })
+        })
+      })
+
+      console.log('process_os_doc alerts filter', stats.elk.os.loadavg )
+      console.log('process_os_doc alerts filter updated_stats', updated_stats.elk.os.loadavg )
 
     },
     /**
     * code taken from os.stats.vue
-    */
-    process_os_doc = function(doc, opts, next, pipeline){
-      let {keys, path, host} = extract_data_os_doc(doc)
-
-      if(!pipeline.inputs[1].conn_pollers[0].minute.hosts[host])
-        pipeline.inputs[1].conn_pollers[0].minute.hosts[host] = 1
-
-      Object.each(keys, function(data, key){
-        if(!current_os[host])
-          current_os[host] = {}
-
-        if(!current_os[host][path])
-          current_os[host][path] = {}
-
-        current_os[host][path][key] = data
-
-      }.bind(this))
-
-      console.log('process_os_doc alerts filter', current_os.elk.os.cpus[0] )
-
-
-      initialize_all_charts(current_os)
-
-      console.log('process_os_doc alerts filter', charts )
-
-      Object.each(current_os, function(host_data, host){
-        Object.each(host_data, function(path_data, path){
-          Object.each(path_data, function(data, key){
-            let name = host+'.'+path+'.'+key
-            if(
-              (
-                ( dynamic_blacklist
-                && dynamic_blacklist.test(name) == false )
-              || ( dynamic_whitelist
-                && dynamic_whitelist.test(name) == true )
-              )
-              && (
-                !static_charts
-                || Object.keys(static_charts).contains(name) == false
-              )
-            ){
-              console.log('host.path.key', name)
-              generic_data_watcher(data, charts[name], name)
-            }
-          })
-        })
-      })
-
-
-      // console.log('process_os_doc alerts filter', charts )
-
-      // sanitize(doc[0], opts, pipeline.outputs[0], pipeline)
-      // output[0](doc)
-    },
-    process_historical_minute_doc = function(doc, opts, next, pipeline){
-      let {keys, path, host} = extract_data_os_historical_doc(doc)
-      path = path.replace('/', '.')
-
-      Object.each(keys, function(data, key){
-        if(!last_historical_minute[host])
-          last_historical_minute[host] = {}
-
-        if(!last_historical_minute[host][path])
-          last_historical_minute[host][path] = {}
-
-        last_historical_minute[host][path][key] = data
-
-      }.bind(this))
-
-      console.log('process_historical_minute_doc alerts filter', last_historical_minute.elk['os.minute'].loadavg)
-
-      /**
-      initialize_all_charts(last_historical_minute)
-      // console.log('process_historical_minute_doc alerts filter', charts)
-
-
-      Object.each(last_historical_minute, function(host_data, host){
-        Object.each(host_data, function(path_data, path){
-          Object.each(path_data, function(data, key){
-            let name = host+'.'+path+'.'+key
-            if(
-              (
-                ( dynamic_blacklist
-                && dynamic_blacklist.test(name) == false )
-              || ( dynamic_whitelist
-                && dynamic_whitelist.test(name) == true )
-              )
-              && (
-                !static_charts
-                || Object.keys(static_charts).contains(name) == false
-              )
-            ){
-              // console.log('host.path.key', name)
-              generic_data_watcher(data, charts[name], name)
-            }
-          })
-        })
-      })
-      **/
-
-      /**
-      * clean hosts property on each iteration, so we only search on current hosts availables
-      **/
-      Object.each(pipeline.inputs[1].conn_pollers[0].minute.hosts, function(value, host){
-        delete pipeline.inputs[1].conn_pollers[0].minute.hosts[host]
-      })
-
-    },
+    **/
+    // process_os_doc = function(doc, opts, next, pipeline){
+    //   let {keys, path, host} = extract_data_os_doc(doc)
+    //
+    //   if(!pipeline.inputs[1].conn_pollers[0].minute.hosts[host])
+    //     pipeline.inputs[1].conn_pollers[0].minute.hosts[host] = 1
+    //
+    //   Object.each(keys, function(data, key){
+    //     if(!stats[host])
+    //       stats[host] = {}
+    //
+    //     if(!stats[host][path])
+    //       stats[host][path] = {}
+    //
+    //     stats[host][path][key] = data
+    //
+    //   }.bind(this))
+    //
+    //   //console.log('process_os_doc alerts filter', stats.elk.os.cpus[0] )
+    //
+    //
+    //   initialize_all_charts(stats)
+    //
+    //   //console.log('process_os_doc alerts filter', charts )
+    //
+    //   Object.each(stats, function(host_data, host){
+    //     Object.each(host_data, function(path_data, path){
+    //       Object.each(path_data, function(data, key){
+    //         let name = host+'.'+path+'.'+key
+    //         if(
+    //           (
+    //             ( dynamic_blacklist
+    //             && dynamic_blacklist.test(name) == false )
+    //           || ( dynamic_whitelist
+    //             && dynamic_whitelist.test(name) == true )
+    //           )
+    //           && (
+    //             !static_charts
+    //             || Object.keys(static_charts).contains(name) == false
+    //           )
+    //         ){
+    //           //console.log('host.path.key', name)
+    //           generic_data_watcher(data, charts[name], name)
+    //         }
+    //       })
+    //     })
+    //   })
+    //
+    //
+    //   // //console.log('process_os_doc alerts filter', charts )
+    //
+    //   // sanitize(doc[0], opts, pipeline.outputs[0], pipeline)
+    //   // output[0](doc)
+    // },
+    // process_historical_minute_doc = function(doc, opts, next, pipeline){
+    //   let {keys, path, host} = extract_data_os_historical_doc(doc)
+    //   path = path.replace('/', '.')
+    //
+    //   Object.each(keys, function(data, key){
+    //     if(!stats[host])
+    //       stats[host] = {}
+    //
+    //     if(!stats[host][path])
+    //       stats[host][path] = {}
+    //
+    //     stats[host][path][key] = data
+    //
+    //   }.bind(this))
+    //
+    //   //console.log('process_historical_minute_doc alerts filter', stats.elk['os.minute'].loadavg)
+    //
+    //
+    //   initialize_all_charts(stats)
+    //   // //console.log('process_historical_minute_doc alerts filter', charts)
+    //
+    //
+    //   Object.each(stats, function(host_data, host){
+    //     Object.each(host_data, function(path_data, path){
+    //       Object.each(path_data, function(data, key){
+    //         let name = host+'.'+path+'.'+key
+    //         if(
+    //           (
+    //             ( dynamic_blacklist
+    //             && dynamic_blacklist.test(name) == false )
+    //           || ( dynamic_whitelist
+    //             && dynamic_whitelist.test(name) == true )
+    //           )
+    //           && (
+    //             !static_charts
+    //             || Object.keys(static_charts).contains(name) == false
+    //           )
+    //         ){
+    //           // //console.log('host.path.key', name)
+    //           generic_data_watcher(data, charts[name], name)
+    //         }
+    //       })
+    //     })
+    //   })
+    //
+    //
+    //   /**
+    //   * clean hosts property on each iteration, so we only search on current hosts availables
+    //   **/
+    //   Object.each(pipeline.inputs[1].conn_pollers[0].minute.hosts, function(value, host){
+    //     delete pipeline.inputs[1].conn_pollers[0].minute.hosts[host]
+    //   })
+    //
+    // },
     sanitize = require('./snippets/filter.sanitize.template'),
 	],
 	output: [
     function(doc){
-      // console.log('os alerts output',doc.metadata, JSON.decode(doc))
+      // //console.log('os alerts output',doc.metadata, JSON.decode(doc))
     },
     //require('./snippets/output.stdout.template'),
     // {
