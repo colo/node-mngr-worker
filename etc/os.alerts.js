@@ -84,100 +84,274 @@ var extract_data_os_doc = function(doc){
 * from os.dashboard.vue
 **/
 var static_charts = {}
-var dynamic_charts = {}
 var dynamic_blacklist = /totalmem/ //don't add charts automatically for this os[key]
 var dynamic_whitelist = null
 // defaukt.dygraph.line.js
 var DefaultChart = {
-    // init: function (vue){
-    // },
-    pre_process: function(chart, name, stat){
+  // init: function (vue){
+  // },
+  pre_process: function(chart, name, stat){
 
 
-      if(!chart.options || !chart.options.labels){
-        if(!chart.options)
-          chart.options = {}
+    if(!chart.options || !chart.options.labels){
+      if(!chart.options)
+        chart.options = {}
 
-        chart.options.labels = []
+      chart.options.labels = []
 
-        /**
-        * dynamic, like 'cpus', that is an Array (multiple cores) of Objects and we wanna watch a specific value
-        * cpus[0].value[N].times[idle|irq...]
-        */
-        if(Array.isArray(stat[0].value)
-          && chart.watch && chart.watch.value
-          && stat[0].value[0][chart.watch.value]
+      /**
+      * dynamic, like 'cpus', that is an Array (multiple cores) of Objects and we wanna watch a specific value
+      * cpus[0].value[N].times[idle|irq...]
+      */
+      if(Array.isArray(stat[0].value)
+        && chart.watch && chart.watch.value
+        && stat[0].value[0][chart.watch.value]
+      ){
+        // console.log('Array.isArray(stat[0].value)', stat[0].value)
+        Object.each(stat[0].value[0][chart.watch.value], function(tmp, tmp_key){
+          chart.options.labels.push(tmp_key)
+        })
+
+        chart.options.labels.unshift('Time')
+
+      }
+      /**
+      * dynamic, like 'blockdevices', that is an Object and we wanna watch a specific value
+      * stat[N].value.stats[in_flight|io_ticks...]
+      */
+      else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
+
+        //if no "watch.value" property, everything should be manage on "trasnform" function
+        if(
+          chart.watch && chart.watch.managed != true
+          || !chart.watch
+
+          // && chart.watch.value
         ){
-          // console.log('Array.isArray(stat[0].value)', stat[0].value)
-          Object.each(stat[0].value[0][chart.watch.value], function(tmp, tmp_key){
-            chart.options.labels.push(tmp_key)
+          let obj = {}
+          if(chart.watch && chart.watch.value){
+            obj = stat[0].value[chart.watch.value]
+          }
+          else{
+            obj = stat[0].value
+          }
+          Object.each(obj, function(tmp, tmp_key){
+            if(
+              !chart.watch
+              || !chart.watch.exclude
+              || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
+            )
+              chart.options.labels.push(tmp_key)
           })
 
           chart.options.labels.unshift('Time')
-
-        }
-        /**
-        * dynamic, like 'blockdevices', that is an Object and we wanna watch a specific value
-        * stat[N].value.stats[in_flight|io_ticks...]
-        */
-        else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
-
-          //if no "watch.value" property, everything should be manage on "trasnform" function
-          if(
-            chart.watch && chart.watch.managed != true
-            || !chart.watch
-
-            // && chart.watch.value
-          ){
-            let obj = {}
-            if(chart.watch && chart.watch.value){
-              obj = stat[0].value[chart.watch.value]
-            }
-            else{
-              obj = stat[0].value
-            }
-            Object.each(obj, function(tmp, tmp_key){
-              if(
-                !chart.watch
-                || !chart.watch.exclude
-                || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
-              )
-                chart.options.labels.push(tmp_key)
-            })
-
-            chart.options.labels.unshift('Time')
-          }
-
-        }
-        //simple, like 'loadavg', that has 3 columns
-        else if(Array.isArray(stat[0].value)){
-
-          chart.options.labels = ['Time']
-
-          for(let i= 0; i < stat[0].value.length; i++){//create data columns
-            chart.options.labels.push(name+'_'+i)
-          }
-
-
-          // this.process_chart(chart, name)
-        }
-        //simple, like 'uptime', that has one simple Numeric value
-        else if(!isNaN(stat[0].value)){//
-          chart.options.labels = ['Time']
-
-          chart.options.labels.push(name)
-          // this.process_chart(chart, name)
         }
 
-        else{
-          chart = null
+      }
+      //simple, like 'loadavg', that has 3 columns
+      else if(Array.isArray(stat[0].value)){
+
+        chart.options.labels = ['Time']
+
+        for(let i= 0; i < stat[0].value.length; i++){//create data columns
+          chart.options.labels.push(name+'_'+i)
         }
+
+
+        // this.process_chart(chart, name)
+      }
+      //simple, like 'uptime', that has one simple Numeric value
+      else if(!isNaN(stat[0].value)){//
+        chart.options.labels = ['Time']
+
+        chart.options.labels.push(name)
+        // this.process_chart(chart, name)
       }
 
-      return chart
+      else{
+        chart = null
+      }
+    }
+
+    return chart
+  },
+  "options": {}
+}
+
+var _dynamic_charts = {
+  "cpus_simple": Object.merge(Object.clone(DefaultChart),{
+    // name: 'os.cpus_simple',
+    // name: function(vm, chart, sta){
+    //   return vm.host+'_os.cpus_simple'
+    // },
+    match: /cpus/,
+    watch: {
+      merge: true,
+      value: 'times',
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values){
+        // console.log('transform: ', values)
+
+        let transformed = []
+        let prev = {idle: 0, total: 0, timestamp: 0 }
+        Array.each(values, function(val, index){
+          let transform = {timestamp: val.timestamp, value: { times: { usage: 0} } }
+          let current = {idle: 0, total: 0, timestamp: val.timestamp }
+
+          // if(index == 0){
+          Object.each(val.value.times, function(stat, key){
+            if(key == 'idle')
+              current.idle += stat
+
+              current.total += stat
+          })
+
+
+          let diff_time = current.timestamp - prev.timestamp
+          let diff_total = current.total - prev.total;
+          let diff_idle = current.idle - prev.idle;
+
+          // ////console.log('transform: ', current, prev)
+
+          //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
+          let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
+
+          if(percentage > 100){
+            console.log('cpu transform: ', diff_time, diff_total, diff_idle)
+          }
+
+          transform.value.times.usage = (percentage > 100) ? 100 : percentage
+
+
+          prev = Object.clone(current)
+          transformed.push(transform)
+        })
+        return transformed
+      }
     },
-    "options": {}
-  }
+
+
+  }),
+  "loadavg": Object.merge(Object.clone(DefaultChart),{
+    match: /.*os\.loadavg/,
+    watch: {
+      // // exclude: /samples/,
+      // exclude: /range|mode/,
+
+      /**
+      * returns  a bigger array (values.length * samples.length) and add each property
+      */
+      transform: function(values){
+        console.log('loadavg transform: ', values)
+
+
+        let transformed = []
+
+        // Array.each(values, function(val, index){
+        //   // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+        //   // transformed.push(transform)
+        //
+        //   let last_sample = null
+        //   let counter = 0
+        //   Object.each(val.value.samples, function(sample, timestamp){
+        //     let transform = {timestamp: timestamp * 1, value: {samples: sample}}
+        //
+        //     if(counter == Object.getLength(val.value.samples) -1)
+        //       last_sample = sample
+        //
+        //     Object.each(val.value, function(data, property){
+        //       if(property != 'samples')
+        //         transform.value[property] = data
+        //     })
+        //
+        //     transformed.push(transform)
+        //     counter++
+        //   })
+        //
+        //   let timestamp = val.timestamp
+        //   let transform = {timestamp: timestamp * 1, value: {}}
+        //
+        //   Object.each(val.value, function(data, property){
+        //     if(property != 'samples'){
+        //       transform.value[property] = data
+        //     }
+        //     else{
+        //       transform.value['samples'] = last_sample
+        //     }
+        //   })
+        //   transformed.push(transform)
+        // })
+        //
+        // // console.log('transformed: ', transformed)
+        // //
+        // return transformed
+        return values
+      }
+    },
+
+  }),
+  // "loadavg_minute": Object.merge(Object.clone(DefaultChart),{
+  //   match: /minute\.loadavg.*/,
+  //   watch: {
+  //     // exclude: /samples/,
+  //     exclude: /range|mode/,
+  //
+  //     /**
+  //     * returns  a bigger array (values.length * samples.length) and add each property
+  //     */
+  //     transform: function(values){
+  //       console.log('loadavg_minute transform: ', values)
+  //
+  //
+  //       let transformed = []
+  //
+  //       Array.each(values, function(val, index){
+  //         // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+  //         // transformed.push(transform)
+  //
+  //         let last_sample = null
+  //         let counter = 0
+  //         Object.each(val.value.samples, function(sample, timestamp){
+  //           let transform = {timestamp: timestamp * 1, value: {samples: sample}}
+  //
+  //           if(counter == Object.getLength(val.value.samples) -1)
+  //             last_sample = sample
+  //
+  //           Object.each(val.value, function(data, property){
+  //             if(property != 'samples')
+  //               transform.value[property] = data
+  //           })
+  //
+  //           transformed.push(transform)
+  //           counter++
+  //         })
+  //
+  //         let timestamp = val.timestamp
+  //         let transform = {timestamp: timestamp * 1, value: {}}
+  //
+  //         Object.each(val.value, function(data, property){
+  //           if(property != 'samples'){
+  //             transform.value[property] = data
+  //           }
+  //           else{
+  //             transform.value['samples'] = last_sample
+  //           }
+  //         })
+  //         transformed.push(transform)
+  //       })
+  //
+  //       // console.log('transformed: ', transformed)
+  //       //
+  //       return transformed
+  //       // return values
+  //     }
+  //   },
+  //
+  // }),
+}
+
 
 var initialize_all_charts = function(val){
   Object.each(val, function(stat, key){
@@ -212,7 +386,7 @@ var parse_chart_from_stat = function (stat, name){
 
     if(Array.isArray(stat)){//it's stat
 
-        dynamic_charts = _get_dynamic_charts(name, dynamic_charts)
+        dynamic_charts = _get_dynamic_charts(name, _dynamic_charts)
 
         if(dynamic_charts[name]){
 
@@ -254,7 +428,7 @@ var process_dynamic_chart = function (chart, name, stat){
       let arr_chart = Object.clone(chart)
 
       // arr_chart.label = this.process_chart_label(chart, name, stat) || name
-      // let chart_name = this.process_chart_name(chart, stat) || name
+      let chart_name = process_chart_name(chart, stat) || name
 
       if(chart.watch.merge != true){
         chart_name += '_'+index
@@ -262,7 +436,7 @@ var process_dynamic_chart = function (chart, name, stat){
 
       if(chart.watch.merge != true || index == 0){//merge creates only once instance
 
-        this.process_chart(
+        process_chart(
           arr_chart.pre_process(arr_chart, chart_name, stat),
           chart_name
         )
@@ -299,7 +473,7 @@ var process_dynamic_chart = function (chart, name, stat){
       chart = chart.pre_process(chart, name, stat)
 
       // chart.label = this.process_chart_label(chart, name, stat) || name
-      // let chart_name = this.process_chart_name(chart, stat) || name
+      let chart_name = process_chart_name(chart, stat) || name
 
       process_chart(chart, chart_name)
     }
@@ -308,7 +482,7 @@ var process_dynamic_chart = function (chart, name, stat){
   else{
 
     // chart.label = this.process_chart_label(chart, name, stat) || name
-    // let chart_name = this.process_chart_name(chart, stat) || name
+    let chart_name = process_chart_name(chart, stat) || name
 
     process_chart(
       chart.pre_process(chart, chart_name, stat),
@@ -399,7 +573,8 @@ generic_data_watcher  = function(current, chart, name){
 
     }
 
-    update_chart_stat(name, data)
+    console.log('update_chart_stat', name, data)
+    // update_chart_stat(name, data)
 
   }
 
@@ -505,6 +680,10 @@ var _current_array_to_data = function (current, watcher){
   return data
 }
 
+process_chart_name = function (chart, stat){
+  if(chart.name && typeOf(chart.name) == 'function') return chart.name(this, chart, stat)
+  else if(chart.name) return chart.name
+}
 /**
 * from mixin/chart.vue
 **/
@@ -515,8 +694,10 @@ var _current_array_to_data = function (current, watcher){
 **/
 _get_dynamic_charts = function (name, dynamic_charts){
   let charts = {}
-  Object.each(dynamic_charts, function(dynamic){
-    if(dynamic.match.test(name) == true){
+
+  Object.each(dynamic_charts, function(dynamic, key){
+    let re = new RegExp(key, 'g')
+    if((dynamic.match && dynamic.match.test(name) == true) || re.test(name)){
       if(!charts[name])
         charts[name] = []
 
@@ -610,20 +791,6 @@ module.exports = {
         process_historical_minute_doc(doc, opts, next, pipeline)
       }
 
-
-      // if(opts.type == 'once' &&  Object.getLength(doc) == 0)//empty os.alerts, create default ones
-      //   next(
-      //     {
-      //       data: {},
-      //       // metadata: {
-      //       //   path: 'os.alerts',
-      //       //   timestamp: Date.now()
-      //       // }
-      //     },
-      //     opts,
-      //     next
-      //   )
-
     },
     /**
     * code taken from os.stats.vue
@@ -645,14 +812,38 @@ module.exports = {
 
       }.bind(this))
 
+      console.log('process_os_doc alerts filter', current_os.elk.os.cpus[0] )
+
+
       initialize_all_charts(current_os)
 
-      // Object.each(current_os, function(value, host){
-      //   initialize_all_charts(current_os[host])
-      // })
-
-      // console.log('process_os_doc alerts filter', current_os.elk.loadavg.value )
       console.log('process_os_doc alerts filter', charts )
+
+      Object.each(current_os, function(host_data, host){
+        Object.each(host_data, function(path_data, path){
+          Object.each(path_data, function(data, key){
+            let name = host+'.'+path+'.'+key
+            if(
+              (
+                ( dynamic_blacklist
+                && dynamic_blacklist.test(name) == false )
+              || ( dynamic_whitelist
+                && dynamic_whitelist.test(name) == true )
+              )
+              && (
+                !static_charts
+                || Object.keys(static_charts).contains(name) == false
+              )
+            ){
+              console.log('host.path.key', name)
+              generic_data_watcher(data, charts[name], name)
+            }
+          })
+        })
+      })
+
+
+      // console.log('process_os_doc alerts filter', charts )
 
       // sanitize(doc[0], opts, pipeline.outputs[0], pipeline)
       // output[0](doc)
@@ -660,7 +851,7 @@ module.exports = {
     process_historical_minute_doc = function(doc, opts, next, pipeline){
       let {keys, path, host} = extract_data_os_historical_doc(doc)
       path = path.replace('/', '.')
-      
+
       Object.each(keys, function(data, key){
         if(!last_historical_minute[host])
           last_historical_minute[host] = {}
@@ -672,9 +863,36 @@ module.exports = {
 
       }.bind(this))
 
+      console.log('process_historical_minute_doc alerts filter', last_historical_minute.elk['os.minute'].loadavg)
+
+      /**
       initialize_all_charts(last_historical_minute)
       // console.log('process_historical_minute_doc alerts filter', charts)
-      // console.log('process_historical_minute_doc alerts filter', last_historical_minute.elk.loadavg.value)
+
+
+      Object.each(last_historical_minute, function(host_data, host){
+        Object.each(host_data, function(path_data, path){
+          Object.each(path_data, function(data, key){
+            let name = host+'.'+path+'.'+key
+            if(
+              (
+                ( dynamic_blacklist
+                && dynamic_blacklist.test(name) == false )
+              || ( dynamic_whitelist
+                && dynamic_whitelist.test(name) == true )
+              )
+              && (
+                !static_charts
+                || Object.keys(static_charts).contains(name) == false
+              )
+            ){
+              // console.log('host.path.key', name)
+              generic_data_watcher(data, charts[name], name)
+            }
+          })
+        })
+      })
+      **/
 
       /**
       * clean hosts property on each iteration, so we only search on current hosts availables
