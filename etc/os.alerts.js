@@ -5,7 +5,7 @@ const path = require('path');
 var cron = require('node-cron');
 
 var stats = {}
-var updated_stats = {}
+var tabular_stats = {}
 
 // var current_os = {}
 // var last_historical_minute = {}
@@ -580,7 +580,7 @@ generic_data_watcher  = function(current, chart, name){
     update_chart_stat(name, data)
 
     // //console.log('update_chart_stat', name)
-    // //console.log(updated_stats.elk.os)
+    // //console.log(tabular_stats.elk.os)
 
   }
 
@@ -588,7 +588,7 @@ generic_data_watcher  = function(current, chart, name){
 }
 
 var update_chart_stat = function(name, data, value){
-  value = value || updated_stats
+  value = value || tabular_stats
 
   // //console.log('name', name.substring(name.indexOf('.')+ 1,  name.length))
   // //console.log('1 name', name)
@@ -738,6 +738,90 @@ _get_dynamic_charts = function (name, dynamic_charts){
 * from mixins/dashboard.vue
 **/
 
+let buffers = []
+let alerts = {
+}
+
+// let alerts = {
+//   data: [
+//     {
+//       '%hosts': (value, payload) => {
+//         console.log('host alert', value, payload)
+//       }
+//     },
+//     {
+//       '%hosts': [
+//         {
+//           '%host': (value, payload) => {
+//             console.log('each host alert', value, payload)
+//           }
+//         }
+//       ]
+//     },
+//     {
+//       '%hosts': {
+//         'os' : {
+//           'loadavg': (value, payload) => {
+//             console.log('loadavg alert', value, payload)
+//           }
+//         }
+//       }
+//     },
+//     {
+//       '%hosts': {
+//         '%path': {
+//           '%properties': [{
+//             '%property':
+//               (value, payload) => {
+//                 console.log('%property alert', value, payload)
+//               }
+//
+//           }]
+//         }
+//       }
+//     },
+//   ],
+//   tabular: [
+//     {
+//       '%hosts': {
+//         'os' : {
+//           'loadavg': (value, payload) => {
+//             console.log('tabular loadavg alert', value, payload)
+//           }
+//         }
+//       }
+//     }
+//   ]
+//
+//
+// }
+
+let alerts_condensed = {
+
+
+  'data[].%hosts': (value, payload) => {
+    console.log('host alert', value, payload)
+  },
+
+  'data[].%hosts[].%host': (value, payload) => {
+    console.log('each host alert', value, payload)
+  },
+
+  'data[].%hosts.os.loadavg': (value, payload) => {
+    console.log('loadavg alert', value, payload)
+  },
+
+
+  'data[].%hosts.%path.%properties[].%property': (value, payload) => {
+    console.log('%property alert', value, payload)
+  },
+
+  'tabular[].%hosts.os.loadavg': (value, payload) => {
+    console.log('tabular loadavg alert', value, payload)
+  }
+
+}
+
 module.exports = {
  input: [
   {
@@ -868,9 +952,115 @@ module.exports = {
         })
       })
 
-      console.log('process_os_doc alerts filter', stats.elk.os.loadavg )
-      console.log('process_os_doc alerts filter updated_stats', updated_stats.elk.os.loadavg )
+      // console.log('process_os_doc alerts filter', stats )
+      // console.log('process_os_doc alerts filter tabular_stats', tabular_stats )
 
+      next({ data: Object.clone(stats), tabular: Object.clone(tabular_stats)},opts, next, pipeline)
+    },
+    function(doc, opts, next, pipeline){
+      console.log('process_os_doc alerts filter', doc )
+      let alerts = {}
+
+      let parse_condensed_keys = function(condensed, value, alerts){
+
+
+          let sub_key = condensed.substring(0, condensed.indexOf('.')).trim()
+          condensed = condensed.replace(sub_key, '')
+          let rest_key = condensed.substring(condensed.indexOf('.')+1, condensed.length).trim()
+          // Array.each(arr_keys, function(arr_key, index){
+
+          if(sub_key.length > 0){
+            if(sub_key.indexOf('[') > -1){
+              sub_key = sub_key.replace(/\[|\]/g,'')
+              if(!alerts[sub_key])
+                alerts[sub_key] = []
+            }
+            else{
+              if(!alerts[sub_key])
+                alerts[sub_key] = {}
+            }
+
+            console.log('rest_key', sub_key, rest_key)
+
+
+            parse_condensed_keys(rest_key, value, alerts[sub_key])
+          }
+          else {
+            // throw new Error()
+            if(Array.isArray(alerts)){
+              let tmp = {}
+              tmp[rest_key] = value
+              alerts.push( tmp )
+              console.log('typeof', typeOf(alerts[0][rest_key]));
+            }
+            else{
+              alerts[rest_key] = value
+
+              console.log('typeof', typeOf(alerts[rest_key]));
+            }
+
+          }
+
+
+      }
+
+      Object.each(alerts_condensed, function(alert, condensed){
+        parse_condensed_keys(condensed, alert, alerts)
+      })
+
+
+      console.log('alerts', alerts)
+
+      let recurse_alerts = function(alerts, doc, name){
+
+        if(Array.isArray(alerts)){
+          Array.each(alerts, function(alert, index){
+            recurse_alerts(alert, doc, name)
+          })
+        }
+        else{//assume Object
+          // let key = Object.keys(alerts)[0]
+          Object.each(alerts, function(alert, key){
+            if(key.indexOf('%') == 0){
+
+              // if(key.lastIndexOf('%') > 0){
+              //
+              // }
+              // else{
+                if(typeof alert == 'function'){
+                  let payload = {
+                    property: name
+                  }
+                  alert(doc, payload)
+                }
+                else{
+                  Object.each(doc, function(data, doc_key){
+                    let sub_name = (name) ? name +'.'+doc_key : doc_key
+                    recurse_alerts(alert, data, sub_name)
+                  })
+                }
+
+            }
+            else{
+              if(doc[key] && typeof alert == 'function'){
+                let payload = {
+                  property: name+'.'+key
+                }
+
+                alert(doc[key], payload)
+              }
+              else if (doc[key]) {
+                let sub_name = (name) ? name+'.'+key : key
+                recurse_alerts(alerts[key], doc[key], sub_name)
+              }
+            }
+
+          })
+
+        }
+      }
+
+      recurse_alerts(alerts, doc, null)
     },
     /**
     * code taken from os.stats.vue
