@@ -7,77 +7,13 @@ var cron = require('node-cron');
 var stats = {}
 var tabular_stats = {}
 
-// var current_os = {}
-// var last_historical_minute = {}
-
 /**
 * from os.stats.vue
 **/
-var extract_data_os_historical_doc = function (doc){
-  let type = ''
-  let range = {}
-  if(Array.isArray(doc)){
-    type = doc[0].doc.metadata.type
-    range = doc[0].doc.metadata.range
-  }
-  else{
-    type = doc.metadata.type
-    range = doc.metadata.range
-  }
+var extract_data_os_historical = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-mngr-docs/')).extract_data_os_historical
 
-  // let {keys, path, host} = this.extract_data_os_doc(doc)
-  let {keys, path, host} = extract_data_os_doc(doc)
-  path = path.replace('historical', type)
+var extract_data_os = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-mngr-docs/')).extract_data_os
 
-  Object.each(keys, function(data, key){
-    if(Array.isArray(data)){
-      Array.each(data, function(value, index){
-        data[index].range = range
-      })
-    }
-    else{
-      data.range = range
-    }
-  })
-
-  return {keys: keys, path: path, host: host}
-}
-
-var extract_data_os_doc = function(doc){
-  let keys = {}
-  let path = ''
-  let host = ''
-
-  if(Array.isArray(doc)){
-    Object.each(doc[0].doc.data, function(data, key){
-      keys[key] = []
-    })
-
-    path = doc[0].doc.metadata.path.replace(/\./g, '/')
-    host = doc[0].doc.metadata.host
-
-    Array.each(doc, function(item){
-      Object.each(item.doc.data, function(value, key){
-        let data = {value: value, timestamp: item.doc.metadata.timestamp}
-        if(keys[key])
-          keys[key].push(data)
-      })
-    }.bind(this))
-  }
-  else {
-    Object.each(doc.data, function(data, key){
-      keys[key] = null
-    })
-    path = doc.metadata.path.replace(/\./g, '/')
-    host = doc.metadata.host
-
-    Object.each(doc.data, function(value, key){
-      let data = {value: value, timestamp: doc.metadata.timestamp}
-      keys[key] = data
-    })
-  }
-  return {keys: keys, path: path, host: host}
-}
 
 /**
 * from os.stats.vue
@@ -246,86 +182,12 @@ var process_chart = function (chart, name){
   charts[name] = chart
 }
 
-generic_data_watcher  = function(current, chart, name){
-  let watcher = chart.watch || {}
+generic_data_watcher  = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-tabular-data/')).data_to_tabular
 
-  if(watcher.managed == true){
-    watcher.transform(current, this, chart)
-  }
-  else{
-    let type_value = null
-    let value_length = 0
-    if(watcher.value != ''){
-      type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher.value]) ? current[0].value[0][watcher.value] : current[0].value[watcher.value]
-    }
-    else{
-      type_value = current[0].value
-    }
-
-    let data = []
-
-    if(Array.isArray(type_value)){//multiple values, ex: loadavg
-      if(watcher.exclude){
-        Array.each(current, function(data){
-          Object.each(data.value, function(value, key){
-            if(watcher.exclude.test(key) == true)
-              delete data.value[key]
-          })
-        })
-      }
-
-      if(typeOf(watcher.transform) == 'function'){
-        current = watcher.transform(current, this, chart)
-      }
-
-      data = _current_array_to_data(current, watcher)
-    }
-    else if(isNaN(type_value) || watcher.value != ''){
-
-      if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
-        current = _current_nested_array(current, watcher, name)
-      }
-
-      // else{//blockdevices.sdX
-      if(watcher.exclude){
-        Array.each(current, function(data){
-          Object.each(data.value, function(value, key){
-            if(watcher.exclude.test(key) == true)
-              delete data.value[key]
-          })
-        })
-      }
-
-
-      if(typeOf(watcher.transform) == 'function'){
-        current = watcher.transform(current, this, chart)
-      }
-
-      if(!Array.isArray(current))
-        current = [current]
-
-      data = _current_array_to_data(current, watcher)
-
-    }
-    else{//single value, ex: uptime
-
-      if(typeOf(watcher.transform) == 'function'){
-        current = watcher.transform(current, this, chart)
-      }
-
-      data = _current_number_to_data (current, watcher)
-
-
-    }
-
-    update_chart_stat(name, data)
-
-  }
-
-
-}
-
-var update_chart_stat = function(name, data, value){
+/**
+* ex-update_chart_stat -> update_tabular_stat
+**/
+var update_tabular_stat = function(name, data, value){
   value = value || tabular_stats
 
   if(name.indexOf('.') > -1){
@@ -335,7 +197,7 @@ var update_chart_stat = function(name, data, value){
     if(!value[key])
       value[key] = {}
 
-    update_chart_stat(name, data, value[key])
+    update_tabular_stat(name, data, value[key])
   }
   else{
     value[name] = data
@@ -446,7 +308,7 @@ module.exports = {
       let extracted = {}
 
       if(doc[0].doc.metadata.path != 'os.historical'){
-        extracted = Object.clone(extract_data_os_doc(doc))
+        extracted = Object.clone(extract_data_os(doc))
         if(!pipeline.inputs[1].conn_pollers[0].minute.hosts[extracted.host])
           pipeline.inputs[1].conn_pollers[0].minute.hosts[extracted.host] = 1
 
@@ -454,7 +316,7 @@ module.exports = {
 
       }
       else{
-        extracted = Object.clone(extract_data_os_historical_doc(doc))
+        extracted = Object.clone(extract_data_os_historical(doc))
         extracted.path = extracted.path.replace('/', '.')
 
         /**
@@ -499,7 +361,7 @@ module.exports = {
               )
             ){
               //console.log('host.path.key', name)
-              generic_data_watcher(data, charts[name], name)
+              generic_data_watcher(data, charts[name], name, update_tabular_stat)
             }
           })
         })
@@ -571,11 +433,34 @@ module.exports = {
             }
             else{
               if(value.$payload){
-                let key = Object.keys(value.$payload)[0]
-                let new_playload = {}
-                parse_condensed_keys(key, value.$payload[key], new_playload)
-                // console.log('extras??', rest_key, value, new_playload)
-                value.$payload = new_playload
+                let new_payload = {}
+
+                if(value.$payload.$extra){
+                  let key = Object.keys(value.$payload.$extra)[0]
+
+                  parse_condensed_keys(key, value.$payload.$extra[key], new_payload)
+
+
+                  // value.$payload = Object.merge(value.$payload, new_payload)
+
+                  // Object.each(value.$payload, function(data, key){
+                  //   if(key != '$extra')
+                  //     new_payload[key] = data
+                  // })
+                  //
+                  console.log('NEW PAYLOAD', new_payload)
+
+                  value.$payload.$extra = new_payload
+                }
+                else{
+                  let key = Object.keys(value.$payload)[0]
+                  new_payload = {}
+                  parse_condensed_keys(key, value.$payload[key], new_payload)
+                  value.$payload = new_payload
+                }
+
+                // console.log('extras??', rest_key, value, new_payload)
+
               }
 
               alerts[rest_key] = value
@@ -649,13 +534,26 @@ module.exports = {
                 }
 
                 if(alert.$payload){
-                  value = recurse_alerts(alert.$payload, original_doc, null)
-                  console.log('alert.$payload', alert.$payload)
-                  // let property = '$payload'
-                  // if(value.property)
-                  //   property = value.property
+                  // let value
+                  if(alert.$payload.$extra){
+                    alert.$payload = Object.merge(payload, alert.$payload)
 
-                  payload['extra'] = value
+                    payload['extra'] = recurse_alerts(alert.$payload.$extra, original_doc, null)
+
+                    Object.each(alert.$payload, function(value, key){
+                      if(key != '$extra')
+                        payload[key] = value
+                    })
+                  }
+                  else{
+                    payload['extra'] = recurse_alerts(alert.$payload, original_doc, null)
+                  }
+
+
+
+                  // value = recurse_alerts(alert.$payload, original_doc, null)
+                  // console.log('alert.$payload', alert.$payload)
+                  // payload['extra'] = value
                 }
 
                 result = fn.attempt([doc[key], payload])
