@@ -86,275 +86,13 @@ var extract_data_os_doc = function(doc){
 /**
 * from os.dashboard.vue
 **/
-var static_charts = {}
-var dynamic_blacklist = /totalmem/ //don't add charts automatically for this os[key]
-var dynamic_whitelist = null
-// defaukt.dygraph.line.js
-var DefaultChart = {
-  // init: function (vue){
-  // },
-  pre_process: function(chart, name, stat){
 
+var static_charts = require(path.join(process.cwd(), 'apps/os/alerts/conf/static.tabular'))
 
-    if(!chart.options || !chart.options.labels){
-      if(!chart.options)
-        chart.options = {}
-
-      chart.options.labels = []
-
-      /**
-      * dynamic, like 'cpus', that is an Array (multiple cores) of Objects and we wanna watch a specific value
-      * cpus[0].value[N].times[idle|irq...]
-      */
-      if(Array.isArray(stat[0].value)
-        && chart.watch && chart.watch.value
-        && stat[0].value[0][chart.watch.value]
-      ){
-        // //console.log('Array.isArray(stat[0].value)', stat[0].value)
-        Object.each(stat[0].value[0][chart.watch.value], function(tmp, tmp_key){
-          chart.options.labels.push(tmp_key)
-        })
-
-        chart.options.labels.unshift('Time')
-
-      }
-      /**
-      * dynamic, like 'blockdevices', that is an Object and we wanna watch a specific value
-      * stat[N].value.stats[in_flight|io_ticks...]
-      */
-      else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
-
-        //if no "watch.value" property, everything should be manage on "trasnform" function
-        if(
-          chart.watch && chart.watch.managed != true
-          || !chart.watch
-
-          // && chart.watch.value
-        ){
-          let obj = {}
-          if(chart.watch && chart.watch.value){
-            obj = stat[0].value[chart.watch.value]
-          }
-          else{
-            obj = stat[0].value
-          }
-          Object.each(obj, function(tmp, tmp_key){
-            if(
-              !chart.watch
-              || !chart.watch.exclude
-              || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
-            )
-              chart.options.labels.push(tmp_key)
-          })
-
-          chart.options.labels.unshift('Time')
-        }
-
-      }
-      //simple, like 'loadavg', that has 3 columns
-      else if(Array.isArray(stat[0].value)){
-
-        chart.options.labels = ['Time']
-
-        for(let i= 0; i < stat[0].value.length; i++){//create data columns
-          chart.options.labels.push(name+'_'+i)
-        }
-
-
-        // this.process_chart(chart, name)
-      }
-      //simple, like 'uptime', that has one simple Numeric value
-      else if(!isNaN(stat[0].value)){//
-        chart.options.labels = ['Time']
-
-        chart.options.labels.push(name)
-        // this.process_chart(chart, name)
-      }
-
-      else{
-        chart = null
-      }
-    }
-
-    return chart
-  },
-  "options": {}
-}
-
-var _dynamic_charts = {
-  "cpus_simple": Object.merge(Object.clone(DefaultChart),{
-    // name: 'os.cpus_simple',
-    // name: function(vm, chart, sta){
-    //   return vm.host+'_os.cpus_simple'
-    // },
-    match: /cpus/,
-    watch: {
-      merge: true,
-      value: 'times',
-      /**
-      * @trasnform: diff between each value against its prev one
-      */
-      transform: function(values){
-        // //console.log('transform: ', values)
-
-        let transformed = []
-        let prev = {idle: 0, total: 0, timestamp: 0 }
-        Array.each(values, function(val, index){
-          let transform = {timestamp: val.timestamp, value: { times: { usage: 0} } }
-          let current = {idle: 0, total: 0, timestamp: val.timestamp }
-
-          // if(index == 0){
-          Object.each(val.value.times, function(stat, key){
-            if(key == 'idle')
-              current.idle += stat
-
-              current.total += stat
-          })
-
-
-          let diff_time = current.timestamp - prev.timestamp
-          let diff_total = current.total - prev.total;
-          let diff_idle = current.idle - prev.idle;
-
-          // //////console.log('transform: ', current, prev)
-
-          //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
-          let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
-
-          if(percentage > 100){
-            //console.log('cpu transform: ', diff_time, diff_total, diff_idle)
-          }
-
-          transform.value.times.usage = (percentage > 100) ? 100 : percentage
-
-
-          prev = Object.clone(current)
-          transformed.push(transform)
-        })
-        return transformed
-      }
-    },
-
-
-  }),
-  "loadavg": Object.merge(Object.clone(DefaultChart),{
-    match: /.*os\.loadavg/,
-    watch: {
-      merge: true,
-      // // exclude: /samples/,
-      // exclude: /range|mode/,
-
-      /**
-      * returns  a bigger array (values.length * samples.length) and add each property
-      */
-      transform: function(values){
-        //console.log('loadavg transform: ', values)
-
-
-        let transformed = []
-
-        // Array.each(values, function(val, index){
-        //   // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-        //   // transformed.push(transform)
-        //
-        //   let last_sample = null
-        //   let counter = 0
-        //   Object.each(val.value.samples, function(sample, timestamp){
-        //     let transform = {timestamp: timestamp * 1, value: {samples: sample}}
-        //
-        //     if(counter == Object.getLength(val.value.samples) -1)
-        //       last_sample = sample
-        //
-        //     Object.each(val.value, function(data, property){
-        //       if(property != 'samples')
-        //         transform.value[property] = data
-        //     })
-        //
-        //     transformed.push(transform)
-        //     counter++
-        //   })
-        //
-        //   let timestamp = val.timestamp
-        //   let transform = {timestamp: timestamp * 1, value: {}}
-        //
-        //   Object.each(val.value, function(data, property){
-        //     if(property != 'samples'){
-        //       transform.value[property] = data
-        //     }
-        //     else{
-        //       transform.value['samples'] = last_sample
-        //     }
-        //   })
-        //   transformed.push(transform)
-        // })
-        //
-        // // //console.log('transformed: ', transformed)
-        // //
-        // return transformed
-        return values
-      }
-    },
-
-  }),
-  // "loadavg_minute": Object.merge(Object.clone(DefaultChart),{
-  //   match: /minute\.loadavg.*/,
-  //   watch: {
-  //     // exclude: /samples/,
-  //     exclude: /range|mode/,
-  //
-  //     /**
-  //     * returns  a bigger array (values.length * samples.length) and add each property
-  //     */
-  //     transform: function(values){
-  //       //console.log('loadavg_minute transform: ', values)
-  //
-  //
-  //       let transformed = []
-  //
-  //       Array.each(values, function(val, index){
-  //         // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-  //         // transformed.push(transform)
-  //
-  //         let last_sample = null
-  //         let counter = 0
-  //         Object.each(val.value.samples, function(sample, timestamp){
-  //           let transform = {timestamp: timestamp * 1, value: {samples: sample}}
-  //
-  //           if(counter == Object.getLength(val.value.samples) -1)
-  //             last_sample = sample
-  //
-  //           Object.each(val.value, function(data, property){
-  //             if(property != 'samples')
-  //               transform.value[property] = data
-  //           })
-  //
-  //           transformed.push(transform)
-  //           counter++
-  //         })
-  //
-  //         let timestamp = val.timestamp
-  //         let transform = {timestamp: timestamp * 1, value: {}}
-  //
-  //         Object.each(val.value, function(data, property){
-  //           if(property != 'samples'){
-  //             transform.value[property] = data
-  //           }
-  //           else{
-  //             transform.value['samples'] = last_sample
-  //           }
-  //         })
-  //         transformed.push(transform)
-  //       })
-  //
-  //       // //console.log('transformed: ', transformed)
-  //       //
-  //       return transformed
-  //       // return values
-  //     }
-  //   },
-  //
-  // }),
-}
+var DefaultChart = require(path.join(process.cwd(), 'apps/os/alerts/conf/default.tabular'))
+var _dynamic_charts = require(path.join(process.cwd(), 'apps/os/alerts/conf/dynamic.tabular')).rules
+var dynamic_blacklist = require(path.join(process.cwd(), 'apps/os/alerts/conf/dynamic.tabular')).blacklist
+var dynamic_whitelist = require(path.join(process.cwd(), 'apps/os/alerts/conf/dynamic.tabular')).whitelist
 
 
 var initialize_all_charts = function(val){
@@ -497,6 +235,9 @@ var process_dynamic_chart = function (chart, name, stat){
 }
 
 var charts = {}
+/**
+* modifies global obj charts
+**/
 var process_chart = function (chart, name){
   if(chart.init && typeOf(chart.init) == 'function')
     chart.init(this, chart, 'chart')
@@ -579,9 +320,6 @@ generic_data_watcher  = function(current, chart, name){
 
     update_chart_stat(name, data)
 
-    // //console.log('update_chart_stat', name)
-    // //console.log(tabular_stats.elk.os)
-
   }
 
 
@@ -590,16 +328,14 @@ generic_data_watcher  = function(current, chart, name){
 var update_chart_stat = function(name, data, value){
   value = value || tabular_stats
 
-  // //console.log('name', name.substring(name.indexOf('.')+ 1,  name.length))
-  // //console.log('1 name', name)
   if(name.indexOf('.') > -1){
     let key = name.substring(0, name.indexOf('.'))
     name = name.substring(name.indexOf('.')+ 1,  name.length)
-    // //console.log('2 name', name)
+
     if(!value[key])
       value[key] = {}
 
-    value = update_chart_stat(name, data, value[key])
+    update_chart_stat(name, data, value[key])
   }
   else{
     value[name] = data
@@ -607,104 +343,11 @@ var update_chart_stat = function(name, data, value){
 
 }
 
-var _current_nested_array = function (current, watcher, name){
+var _current_nested_array = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-tabular-data/')).nested_array_to_tabular
 
-  let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
-  ////////////////console.log('generic_data_watcher isNanN', name, val, index)
+var _current_number_to_data = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-tabular-data/')).number_to_tabular
 
-  let val_current = []
-  Array.each(current, function(item){
-    // ////////////////console.log('CPU item', item)
-
-    let value = {}
-    Array.each(item.value, function(val, value_index){//each cpu
-
-      if(watcher.merge !== true && value_index == index){////no merging - compare indexes to add to this watcher
-        value[watcher.value] = Object.clone(val[watcher.value])
-      }
-      else{//merge all into a single stat
-        if(value_index == 0){
-          value[watcher.value] = Object.clone(val[watcher.value])
-        }
-        else{
-          Object.each(val[watcher.value], function(prop, key){
-            value[watcher.value][key] += prop
-          })
-
-        }
-      }
-
-    }.bind(this))
-
-    val_current.push({timestamp: item.timestamp, value: value})
-
-  }.bind(this))
-
-  // ////////////////console.log('CPU new current', val_current)
-
-  return val_current
-}
-
-var _current_number_to_data  = function(current, watcher){
-  let data = []
-  Array.each(current, function(current){
-    let value = null
-    if(watcher.value != ''){
-      value = current.value[watcher.value]
-    }
-    else{
-      value = current.value
-    }
-
-    // data.push([new Date(current.timestamp), value, 0])//0, minute column
-    data.push([new Date(current.timestamp), value])//0, minute column
-  })
-
-  return data
-}
-
-var _current_array_to_data = function (current, watcher){
-  watcher = watcher || {value: ''}
-  watcher.value = watcher.value || ''
-
-  let data = []
-  Array.each(current, function(item){
-    let tmp_data = []
-    tmp_data.push(new Date(item.timestamp))
-
-    let value = null
-    if(watcher.value != ''){
-      value = item.value[watcher.value]
-    }
-    else{
-      value = item.value
-    }
-
-    // Array.each(value, function(real_value){
-    //   tmp_data.push(real_value)
-    // })
-    if(Array.isArray(value)){
-      Array.each(value, function(real_value){
-        tmp_data.push(real_value)
-      })
-    }
-    else if(!isNaN(value)){//mounts[mount_point].value.percentage
-      tmp_data.push(value * 1)
-    }
-    else{
-      Object.each(value, function(real_value){
-        real_value = real_value * 1
-        tmp_data.push(real_value)
-      })
-    }
-
-    // tmp_data.push(0)//add minute column
-
-    data.push(tmp_data)
-  })
-
-  return data
-}
+var _current_array_to_data = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-tabular-data/')).array_to_tabular
 
 process_chart_name = function (chart, stat){
   if(chart.name && typeOf(chart.name) == 'function') return chart.name(this, chart, stat)
@@ -718,109 +361,19 @@ process_chart_name = function (chart, stat){
 /**
 * from mixins/dashboard.vue
 **/
-_get_dynamic_charts = function (name, dynamic_charts){
-  let charts = {}
+_get_dynamic_charts = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-tabular-data/')).get_dynamics
 
-  Object.each(dynamic_charts, function(dynamic, key){
-    let re = new RegExp(key, 'g')
-    if((dynamic.match && dynamic.match.test(name) == true) || re.test(name)){
-      if(!charts[name])
-        charts[name] = []
-
-      charts[name].push(dynamic)
-
-    }
-  }.bind(this))
-
-  return charts
-}
 /**
 * from mixins/dashboard.vue
 **/
 
-let buffers = []
-let alerts = {
-}
-
+// let buffers = []
 // let alerts = {
-//   data: [
-//     {
-//       '%hosts': (value, payload) => {
-//         console.log('host alert', value, payload)
-//       }
-//     },
-//     {
-//       '%hosts': [
-//         {
-//           '%host': (value, payload) => {
-//             console.log('each host alert', value, payload)
-//           }
-//         }
-//       ]
-//     },
-//     {
-//       '%hosts': {
-//         'os' : {
-//           'loadavg': (value, payload) => {
-//             console.log('loadavg alert', value, payload)
-//           }
-//         }
-//       }
-//     },
-//     {
-//       '%hosts': {
-//         '%path': {
-//           '%properties': [{
-//             '%property':
-//               (value, payload) => {
-//                 console.log('%property alert', value, payload)
-//               }
-//
-//           }]
-//         }
-//       }
-//     },
-//   ],
-//   tabular: [
-//     {
-//       '%hosts': {
-//         'os' : {
-//           'loadavg': (value, payload) => {
-//             console.log('tabular loadavg alert', value, payload)
-//           }
-//         }
-//       }
-//     }
-//   ]
-//
-//
 // }
 
-let alerts_condensed = {
+let expanded_alerts = require(path.join(process.cwd(), 'apps/os/alerts/conf/expanded'))
 
-
-  'data[].%hosts': (value, payload) => {
-    console.log('host alert', value, payload)
-  },
-
-  'data[].%hosts[].%host': (value, payload) => {
-    console.log('each host alert', value, payload)
-  },
-
-  'data[].%hosts.os.loadavg': (value, payload) => {
-    console.log('loadavg alert', value, payload)
-  },
-
-
-  'data[].%hosts.%path.%properties[].%property': (value, payload) => {
-    console.log('%property alert', value, payload)
-  },
-
-  'tabular[].%hosts.os.loadavg': (value, payload) => {
-    console.log('tabular loadavg alert', value, payload)
-  }
-
-}
+let condensed_alerts = require(path.join(process.cwd(), 'apps/os/alerts/conf/condensed'))
 
 module.exports = {
  input: [
@@ -959,10 +512,10 @@ module.exports = {
     },
     function(doc, opts, next, pipeline){
       console.log('process_os_doc alerts filter', doc )
-      let alerts = {}
+
+      let _alerts = {data: [], tabular: []}
 
       let parse_condensed_keys = function(condensed, value, alerts){
-
 
           let sub_key = condensed.substring(0, condensed.indexOf('.')).trim()
           condensed = condensed.replace(sub_key, '')
@@ -970,20 +523,44 @@ module.exports = {
           // Array.each(arr_keys, function(arr_key, index){
 
           if(sub_key.length > 0){
+            let sub_alert = undefined
+            let recurse_alert = undefined
+
             if(sub_key.indexOf('[') > -1){
               sub_key = sub_key.replace(/\[|\]/g,'')
-              if(!alerts[sub_key])
-                alerts[sub_key] = []
+              // if(!alerts[sub_key])
+                sub_alert = []
             }
             else{
-              if(!alerts[sub_key])
-                alerts[sub_key] = {}
+              // if(!alerts[sub_key])
+                sub_alert = {}
             }
 
-            console.log('rest_key', sub_key, rest_key)
+            if(Array.isArray(alerts)){
+              let tmp = {}
+              tmp[sub_key] = sub_alert
+              alerts.push( tmp )//change sub_key to array index
+              recurse_alert = alerts[alerts.length - 1][sub_key]
+            }
+            else{
 
+              if(!alerts[sub_key]){
+                alerts[sub_key] = sub_alert
+                // let tmp = {}
+                // tmp[sub_key] = sub_alert
 
-            parse_condensed_keys(rest_key, value, alerts[sub_key])
+                // alerts[sub_key] = Object.merge(alerts[sub_key], sub_alert)
+              }
+              // else{
+              //
+              // }
+
+              recurse_alert = alerts[sub_key]
+            }
+
+            // console.log('rest_key', sub_key, rest_key, recurse_alert)
+
+            parse_condensed_keys(rest_key, value, recurse_alert)
           }
           else {
             // throw new Error()
@@ -991,31 +568,43 @@ module.exports = {
               let tmp = {}
               tmp[rest_key] = value
               alerts.push( tmp )
-              console.log('typeof', typeOf(alerts[0][rest_key]));
             }
             else{
+              if(value.$payload){
+                let key = Object.keys(value.$payload)[0]
+                let new_playload = {}
+                parse_condensed_keys(key, value.$payload[key], new_playload)
+                // console.log('extras??', rest_key, value, new_playload)
+                value.$payload = new_playload
+              }
+
               alerts[rest_key] = value
 
-              console.log('typeof', typeOf(alerts[rest_key]));
             }
 
           }
 
-
       }
 
-      Object.each(alerts_condensed, function(alert, condensed){
-        parse_condensed_keys(condensed, alert, alerts)
+      Object.each(condensed_alerts, function(alert, condensed){
+        parse_condensed_keys(condensed, alert, _alerts)
       })
 
+      let all_alerts = {data: [], tabular: []}
+      all_alerts.data = all_alerts.data.append(expanded_alerts.data).append(_alerts.data)
+      all_alerts.tabular = all_alerts.tabular.append(expanded_alerts.tabular).append(_alerts.tabular)
+      // // Object.merge(expanded_alerts, _alerts)
 
-      console.log('alerts', alerts)
+      console.log('ALL alerts', all_alerts)
+
+      let original_doc = doc//needed to recurse $payload
 
       let recurse_alerts = function(alerts, doc, name){
-
+        let result
         if(Array.isArray(alerts)){
+          result = []
           Array.each(alerts, function(alert, index){
-            recurse_alerts(alert, doc, name)
+            result.push ( recurse_alerts(alert, doc, name) )
           })
         }
         else{//assume Object
@@ -1023,155 +612,73 @@ module.exports = {
           Object.each(alerts, function(alert, key){
             if(key.indexOf('%') == 0){
 
-              // if(key.lastIndexOf('%') > 0){
-              //
-              // }
-              // else{
                 if(typeof alert == 'function'){
                   let payload = {
                     property: name
                   }
-                  alert(doc, payload)
+                  result = alert.attempt([doc, payload])
                 }
                 else{
+                  result = []
                   Object.each(doc, function(data, doc_key){
                     let sub_name = (name) ? name +'.'+doc_key : doc_key
-                    recurse_alerts(alert, data, sub_name)
+                    result.push ( recurse_alerts(alert, data, sub_name) )
                   })
                 }
 
             }
             else{
-              if(doc[key] && typeof alert == 'function'){
+              if(
+                doc[key]
+                && (
+                  typeof alert == 'function'
+                  || (alert.$callback && typeof alert.$callback == 'function')
+                )
+              ){
+
+                let fn
+                if(alert.$callback){
+                  fn = alert.$callback
+                }
+                else{
+                  fn = alert
+                }
+
                 let payload = {
                   property: name+'.'+key
                 }
 
-                alert(doc[key], payload)
+                if(alert.$payload){
+                  value = recurse_alerts(alert.$payload, original_doc, null)
+                  console.log('alert.$payload', alert.$payload)
+                  // let property = '$payload'
+                  // if(value.property)
+                  //   property = value.property
+
+                  payload['extra'] = value
+                }
+
+                result = fn.attempt([doc[key], payload])
               }
               else if (doc[key]) {
                 let sub_name = (name) ? name+'.'+key : key
-                recurse_alerts(alerts[key], doc[key], sub_name)
+                result = recurse_alerts(alerts[key], doc[key], sub_name)
               }
             }
 
           })
 
         }
+
+
+        return result
       }
 
-      recurse_alerts(alerts, doc, null)
+      recurse_alerts(all_alerts, doc, null)
+      // recurse_alerts(expanded_alerts, doc, null)
+      // recurse_alerts(_alerts, doc, null)
     },
-    /**
-    * code taken from os.stats.vue
-    **/
-    // process_os_doc = function(doc, opts, next, pipeline){
-    //   let {keys, path, host} = extract_data_os_doc(doc)
-    //
-    //   if(!pipeline.inputs[1].conn_pollers[0].minute.hosts[host])
-    //     pipeline.inputs[1].conn_pollers[0].minute.hosts[host] = 1
-    //
-    //   Object.each(keys, function(data, key){
-    //     if(!stats[host])
-    //       stats[host] = {}
-    //
-    //     if(!stats[host][path])
-    //       stats[host][path] = {}
-    //
-    //     stats[host][path][key] = data
-    //
-    //   }.bind(this))
-    //
-    //   //console.log('process_os_doc alerts filter', stats.elk.os.cpus[0] )
-    //
-    //
-    //   initialize_all_charts(stats)
-    //
-    //   //console.log('process_os_doc alerts filter', charts )
-    //
-    //   Object.each(stats, function(host_data, host){
-    //     Object.each(host_data, function(path_data, path){
-    //       Object.each(path_data, function(data, key){
-    //         let name = host+'.'+path+'.'+key
-    //         if(
-    //           (
-    //             ( dynamic_blacklist
-    //             && dynamic_blacklist.test(name) == false )
-    //           || ( dynamic_whitelist
-    //             && dynamic_whitelist.test(name) == true )
-    //           )
-    //           && (
-    //             !static_charts
-    //             || Object.keys(static_charts).contains(name) == false
-    //           )
-    //         ){
-    //           //console.log('host.path.key', name)
-    //           generic_data_watcher(data, charts[name], name)
-    //         }
-    //       })
-    //     })
-    //   })
-    //
-    //
-    //   // //console.log('process_os_doc alerts filter', charts )
-    //
-    //   // sanitize(doc[0], opts, pipeline.outputs[0], pipeline)
-    //   // output[0](doc)
-    // },
-    // process_historical_minute_doc = function(doc, opts, next, pipeline){
-    //   let {keys, path, host} = extract_data_os_historical_doc(doc)
-    //   path = path.replace('/', '.')
-    //
-    //   Object.each(keys, function(data, key){
-    //     if(!stats[host])
-    //       stats[host] = {}
-    //
-    //     if(!stats[host][path])
-    //       stats[host][path] = {}
-    //
-    //     stats[host][path][key] = data
-    //
-    //   }.bind(this))
-    //
-    //   //console.log('process_historical_minute_doc alerts filter', stats.elk['os.minute'].loadavg)
-    //
-    //
-    //   initialize_all_charts(stats)
-    //   // //console.log('process_historical_minute_doc alerts filter', charts)
-    //
-    //
-    //   Object.each(stats, function(host_data, host){
-    //     Object.each(host_data, function(path_data, path){
-    //       Object.each(path_data, function(data, key){
-    //         let name = host+'.'+path+'.'+key
-    //         if(
-    //           (
-    //             ( dynamic_blacklist
-    //             && dynamic_blacklist.test(name) == false )
-    //           || ( dynamic_whitelist
-    //             && dynamic_whitelist.test(name) == true )
-    //           )
-    //           && (
-    //             !static_charts
-    //             || Object.keys(static_charts).contains(name) == false
-    //           )
-    //         ){
-    //           // //console.log('host.path.key', name)
-    //           generic_data_watcher(data, charts[name], name)
-    //         }
-    //       })
-    //     })
-    //   })
-    //
-    //
-    //   /**
-    //   * clean hosts property on each iteration, so we only search on current hosts availables
-    //   **/
-    //   Object.each(pipeline.inputs[1].conn_pollers[0].minute.hosts, function(value, host){
-    //     delete pipeline.inputs[1].conn_pollers[0].minute.hosts[host]
-    //   })
-    //
-    // },
+
     sanitize = require('./snippets/filter.sanitize.template'),
 	],
 	output: [
