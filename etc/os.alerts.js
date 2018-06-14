@@ -237,6 +237,8 @@ let expanded_alerts = require(path.join(process.cwd(), 'apps/os/alerts/conf/expa
 
 let condensed_alerts = require(path.join(process.cwd(), 'apps/os/alerts/conf/condensed'))
 
+var alerts_payloads = {}
+
 module.exports = {
  input: [
   {
@@ -484,7 +486,7 @@ module.exports = {
       all_alerts.tabular = all_alerts.tabular.append(expanded_alerts.tabular).append(_alerts.tabular)
       // // Object.merge(expanded_alerts, _alerts)
 
-      console.log('ALL alerts', all_alerts)
+      // console.log('ALL alerts', all_alerts.data[0]['%hosts'].os.loadavg['$payload'])
 
       let original_doc = doc//needed to recurse $payload
 
@@ -498,7 +500,9 @@ module.exports = {
         }
         else{//assume Object
           // let key = Object.keys(alerts)[0]
+
           Object.each(alerts, function(alert, key){
+
             if(key.indexOf('%') == 0){
 
                 if(typeof alert == 'function'){
@@ -517,6 +521,7 @@ module.exports = {
 
             }
             else{
+
               if(
                 doc[key]
                 && (
@@ -524,6 +529,7 @@ module.exports = {
                   || (alert.$callback && typeof alert.$callback == 'function')
                 )
               ){
+                // console.log('ALL alerts', key, alert)
 
                 let fn
                 if(alert.$callback){
@@ -533,34 +539,48 @@ module.exports = {
                   fn = alert
                 }
 
-                let payload = {
-                  property: name+'.'+key
-                }
+                let payload = {}
 
                 if(alert.$payload){
                   // let value
                   if(alert.$payload.$extra){
-                    alert.$payload = Object.merge(payload, alert.$payload)
 
-                    payload['extra'] = recurse_alerts(alert.$payload.$extra, original_doc, null)
+                    alert.$payload.extra = recurse_alerts(alert.$payload.$extra, original_doc, null)
+                    payload = Object.clone(alert.$payload)
+                    payload.property = name+'.'+key
 
-                    Object.each(alert.$payload, function(value, key){
-                      if(key != '$extra')
-                        payload[key] = value
+                    let alert_payload = {}
+                    if(alerts_payloads[fn.toString()+'.'+payload.property])
+                      alert_payload = Object.clone(alerts_payloads[fn.toString()+'.'+payload.property])
+
+                    Object.each(alert_payload, function(value, prop){
+                      if(prop != 'extra' && prop != '$extra' && prop != 'property')
+                        payload[prop] = value
                     })
+
+
                   }
                   else{
                     payload['extra'] = recurse_alerts(alert.$payload, original_doc, null)
+                    payload.property = name+'.'+key
                   }
 
 
 
                   // value = recurse_alerts(alert.$payload, original_doc, null)
-                  // console.log('alert.$payload', alert.$payload)
+                  // console.log('alert.$payload', alerts_payloads)
                   // payload['extra'] = value
+                }
+                else{
+                  payload.property = name+'.'+key
                 }
 
                 result = fn.attempt([doc[key], payload])
+
+                if(alert.$payload && alert.$payload.$extra){
+                  alerts_payloads[fn.toString()+'.'+payload.property] = Object.clone(payload)
+                }
+
               }
               else if (doc[key]) {
                 let sub_name = (name) ? name+'.'+key : key
