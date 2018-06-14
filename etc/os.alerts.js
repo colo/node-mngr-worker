@@ -380,8 +380,12 @@ module.exports = {
       let parse_condensed_keys = function(condensed, value, alerts){
 
           let sub_key = condensed.substring(0, condensed.indexOf('.')).trim()
+          sub_key = sub_key.replace(/\/|_|-/g, '.')
+
           condensed = condensed.replace(sub_key, '')
           let rest_key = condensed.substring(condensed.indexOf('.')+1, condensed.length).trim()
+          // rest_key = rest_key.replace('_', '.')
+
           // Array.each(arr_keys, function(arr_key, index){
 
           if(sub_key.length > 0){
