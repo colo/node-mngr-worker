@@ -316,6 +316,13 @@ module.exports = {
 
         // process_os_doc(doc, opts, next, pipeline)
 
+        /**
+        * passing here to next filter ensures that we do the procesiing no more than onec a sec,
+        * after 'os', avoind recalling it on os.historical or other
+        */
+        if(doc[0].doc.metadata.path == 'os'){
+          next({ data: Object.clone(stats), tabular: Object.clone(tabular_stats)},opts, next, pipeline)
+        }
       }
       else{
         extracted = Object.clone(extract_data_os_historical(doc))
@@ -372,7 +379,7 @@ module.exports = {
       // console.log('process_os_doc alerts filter', stats )
       // console.log('process_os_doc alerts filter tabular_stats', tabular_stats )
 
-      next({ data: Object.clone(stats), tabular: Object.clone(tabular_stats)},opts, next, pipeline)
+
     },
     function(doc, opts, next, pipeline){
       console.log('process_os_doc alerts filter', doc )
@@ -438,34 +445,43 @@ module.exports = {
               alerts.push( tmp )
             }
             else{
+
               if(value.$payload){
-                let new_payload = {}
+                let new_payload
 
                 if(value.$payload.$extra){
-                  let key = Object.keys(value.$payload.$extra)[0]
 
-                  parse_condensed_keys(key, value.$payload.$extra[key], new_payload)
+                  if(Array.isArray(value.$payload.$extra)){
+                    new_payload = []
+
+                    Array.each(value.$payload.$extra, function(extra, index){
+                      let key = Object.keys(extra)[0]
+                      new_payload[index] = {}
+                      parse_condensed_keys(key, extra[key], new_payload[index])
+                    })
+                  }
+                  else{
+                    new_payload = {}
+                    let key = Object.keys(value.$payload.$extra)[0]
+
+                    parse_condensed_keys(key, value.$payload.$extra[key], new_payload)
 
 
-                  // value.$payload = Object.merge(value.$payload, new_payload)
+                  }
 
-                  // Object.each(value.$payload, function(data, key){
-                  //   if(key != '$extra')
-                  //     new_payload[key] = data
-                  // })
-                  //
-                  console.log('NEW PAYLOAD', new_payload)
+                  // console.log('NEW PAYLOAD', new_payload)
 
                   value.$payload.$extra = new_payload
                 }
                 else{
+                  new_payload = {}
                   let key = Object.keys(value.$payload)[0]
                   new_payload = {}
                   parse_condensed_keys(key, value.$payload[key], new_payload)
                   value.$payload = new_payload
                 }
 
-                // console.log('extras??', rest_key, value, new_payload)
+                // console.log('extras??', rest_key, value.$payload.$extra)
 
               }
 
@@ -545,18 +561,45 @@ module.exports = {
                   // let value
                   if(alert.$payload.$extra){
 
-                    alert.$payload.extra = recurse_alerts(alert.$payload.$extra, original_doc, null)
+                    if(Array.isArray(alert.$payload.$extra)){
+                      alert.$payload.extra = []
+                      Array.each(alert.$payload.$extra, function(extra, index){
+                        alert.$payload.extra[index] = recurse_alerts(alert.$payload.$extra[index], original_doc, null)
+                      })
+                    }
+                    else{
+                      alert.$payload.extra = recurse_alerts(alert.$payload.$extra, original_doc, null)
+                    }
+
+
                     payload = Object.clone(alert.$payload)
                     payload.property = name+'.'+key
-
                     let alert_payload = {}
-                    if(alerts_payloads[fn.toString()+'.'+payload.property])
-                      alert_payload = Object.clone(alerts_payloads[fn.toString()+'.'+payload.property])
 
-                    Object.each(alert_payload, function(value, prop){
-                      if(prop != 'extra' && prop != '$extra' && prop != 'property')
-                        payload[prop] = value
-                    })
+                    // if(Array.isArra(alert.$payload.$extra)){
+                    //   Array.each(alert.$payload.$extra, function(extra, index){
+                    //
+                    //     if(alerts_payloads[fn.toString()+'.'+payload.property+'.'+index])
+                    //       alert_payload = Object.clone(alerts_payloads[fn.toString()+'.'+payload.property+'.'+index])
+                    //
+                    //     Object.each(alert_payload, function(value, prop){
+                    //       if(prop != 'extra' && prop != '$extra' && prop != 'property')
+                    //         payload[prop] = value
+                    //     })
+                    //   })
+                    // }
+                    // else{
+
+                      if(alerts_payloads[fn.toString()+'.'+payload.property])
+                        alert_payload = Object.clone(alerts_payloads[fn.toString()+'.'+payload.property])
+
+                      Object.each(alert_payload, function(value, prop){
+                        if(prop != 'extra' && prop != '$extra' && prop != 'property')
+                          payload[prop] = value
+                      })
+                    // }
+
+
 
 
                   }
