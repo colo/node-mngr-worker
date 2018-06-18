@@ -106,7 +106,7 @@ var process_dynamic_chart = function (chart, name, stat){
       let arr_chart = Object.clone(chart)
 
       // arr_chart.label = this.process_chart_label(chart, name, stat) || name
-      let chart_name = process_chart_name(chart, stat) || name
+      let chart_name = process_chart_name(name, chart, stat) || name
 
       if(chart.watch.merge != true){
         chart_name += '_'+index
@@ -151,7 +151,7 @@ var process_dynamic_chart = function (chart, name, stat){
       chart = chart.pre_process(chart, name, stat)
 
       // chart.label = this.process_chart_label(chart, name, stat) || name
-      let chart_name = process_chart_name(chart, stat) || name
+      let chart_name = process_chart_name(name, chart, stat) || name
 
       process_chart(chart, chart_name)
     }
@@ -160,7 +160,7 @@ var process_dynamic_chart = function (chart, name, stat){
   else{
 
     // chart.label = this.process_chart_label(chart, name, stat) || name
-    let chart_name = process_chart_name(chart, stat) || name
+    let chart_name = process_chart_name(name, chart, stat) || name
 
     process_chart(
       chart.pre_process(chart, chart_name, stat),
@@ -175,11 +175,16 @@ var charts = {}
 * modifies global obj charts
 **/
 var process_chart = function (chart, name){
-  if(chart.init && typeOf(chart.init) == 'function')
-    chart.init(this, chart, 'chart')
+  if(!charts[name]){
+    //console.log('process_chart', name)
 
-  // this.create_watcher(name, chart)
-  charts[name] = chart
+    if(chart.init && typeOf(chart.init) == 'function')
+      chart.init(this, chart, 'chart')
+
+    // this.create_watcher(name, chart)
+
+    charts[name] = chart
+  }
 }
 
 generic_data_watcher  = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-tabular-data/')).data_to_tabular
@@ -211,8 +216,11 @@ var _current_number_to_data = require(path.join(process.cwd(), 'apps/os/alerts/n
 
 var _current_array_to_data = require(path.join(process.cwd(), 'apps/os/alerts/node_modules/node-tabular-data/')).array_to_tabular
 
-process_chart_name = function (chart, stat){
-  if(chart.name && typeOf(chart.name) == 'function') return chart.name(this, chart, stat)
+/**
+* modified: added name param
+**/
+process_chart_name = function (name, chart, stat){
+  if(chart.name && typeOf(chart.name) == 'function') return chart.name(name, chart, stat)
   else if(chart.name) return chart.name
 }
 /**
@@ -316,11 +324,44 @@ module.exports = {
 
         // process_os_doc(doc, opts, next, pipeline)
 
+        Object.each(stats, function(host_data, host){
+          Object.each(host_data, function(path_data, path){
+            Object.each(path_data, function(data, key){
+              let name = host+'.'+path+'.'+key
+              if(
+                (
+                  ( dynamic_blacklist
+                  && dynamic_blacklist.test(name) == false )
+                || ( dynamic_whitelist
+                  && dynamic_whitelist.test(name) == true )
+                )
+                && (
+                  !static_charts
+                  || Object.keys(static_charts).contains(name) == false
+                )
+              ){
+                // //console.log('host.path.key', name, charts)
+                if(charts[name])
+                  generic_data_watcher(data, charts[name], name, update_tabular_stat)
+
+                Object.each(charts, function(chart, key){
+                  if(chart.match &&  chart.match.test(name) && (chart != charts[name]))
+                    generic_data_watcher(data, chart, key, update_tabular_stat)
+                })
+              }
+            })
+          })
+        })
+
         /**
         * passing here to next filter ensures that we do the procesiing no more than onec a sec,
         * after 'os', avoind recalling it on os.historical or other
         */
         if(doc[0].doc.metadata.path == 'os'){
+
+          if(tabular_stats.elk)
+          // ///console.log('TABULAR STATS', tabular_stats.elk.os.minute)
+
           next({ data: Object.clone(stats), tabular: Object.clone(tabular_stats)},opts, next, pipeline)
         }
       }
@@ -353,49 +394,34 @@ module.exports = {
 
 
 
-      Object.each(stats, function(host_data, host){
-        Object.each(host_data, function(path_data, path){
-          Object.each(path_data, function(data, key){
-            let name = host+'.'+path+'.'+key
-            if(
-              (
-                ( dynamic_blacklist
-                && dynamic_blacklist.test(name) == false )
-              || ( dynamic_whitelist
-                && dynamic_whitelist.test(name) == true )
-              )
-              && (
-                !static_charts
-                || Object.keys(static_charts).contains(name) == false
-              )
-            ){
-              //console.log('host.path.key', name)
-              generic_data_watcher(data, charts[name], name, update_tabular_stat)
-            }
-          })
-        })
-      })
 
-      // console.log('process_os_doc alerts filter', stats )
-      // console.log('process_os_doc alerts filter tabular_stats', tabular_stats )
+
+      // //console.log('process_os_doc alerts filter', charts )
+      // //console.log('process_os_doc alerts filter', stats )
+      // //console.log('process_os_doc alerts filter TABULAR', tabular_stats )
+
+
+      // //console.log('process_os_doc alerts filter tabular_stats', tabular_stats.elk.os.cpus )
 
 
     },
     function(doc, opts, next, pipeline){
-      console.log('process_os_doc alerts filter', doc )
+      //console.log('process_os_doc alerts filter', doc )
 
       let _alerts = {data: [], tabular: []}
 
       let parse_condensed_keys = function(condensed, value, alerts){
 
           let sub_key = condensed.substring(0, condensed.indexOf('.')).trim()
-          sub_key = sub_key.replace(/\/|_|-/g, '.')
-
           condensed = condensed.replace(sub_key, '')
+
+          // sub_key = sub_key.replace(/\/|_|-/g, '.')
+          
           let rest_key = condensed.substring(condensed.indexOf('.')+1, condensed.length).trim()
           // rest_key = rest_key.replace('_', '.')
 
           // Array.each(arr_keys, function(arr_key, index){
+          console.log('sub_key', sub_key, rest_key)
 
           if(sub_key.length > 0){
             let sub_alert = undefined
@@ -433,7 +459,7 @@ module.exports = {
               recurse_alert = alerts[sub_key]
             }
 
-            // console.log('rest_key', sub_key, rest_key, recurse_alert)
+            // //console.log('rest_key', sub_key, rest_key, recurse_alert)
 
             parse_condensed_keys(rest_key, value, recurse_alert)
           }
@@ -469,7 +495,7 @@ module.exports = {
 
                   }
 
-                  // console.log('NEW PAYLOAD', new_payload)
+                  // //console.log('NEW PAYLOAD', new_payload)
 
                   value.$payload.$extra = new_payload
                 }
@@ -481,7 +507,7 @@ module.exports = {
                   value.$payload = new_payload
                 }
 
-                // console.log('extras??', rest_key, value.$payload.$extra)
+                // //console.log('extras??', rest_key, value.$payload.$extra)
 
               }
 
@@ -502,7 +528,8 @@ module.exports = {
       all_alerts.tabular = all_alerts.tabular.append(expanded_alerts.tabular).append(_alerts.tabular)
       // // Object.merge(expanded_alerts, _alerts)
 
-      // console.log('ALL alerts', all_alerts.data[0]['%hosts'].os.loadavg['$payload'])
+      // console.log('ALL alerts', all_alerts.tabular[0]['%hosts'].os.loadavg['$payload'])
+      console.log('ALL alerts', doc.tabular.elk.os.minute)
 
       let original_doc = doc//needed to recurse $payload
 
@@ -523,7 +550,8 @@ module.exports = {
 
                 if(typeof alert == 'function'){
                   let payload = {
-                    property: name
+                    property: name,
+                    next: next
                   }
                   result = alert.attempt([doc, payload])
                 }
@@ -545,7 +573,7 @@ module.exports = {
                   || (alert.$callback && typeof alert.$callback == 'function')
                 )
               ){
-                // console.log('ALL alerts', key, alert)
+                // //console.log('ALL alerts', key, alert)
 
                 let fn
                 if(alert.$callback){
@@ -555,7 +583,10 @@ module.exports = {
                   fn = alert
                 }
 
-                let payload = {}
+                let payload = {
+                  property: name+'.'+key,
+                  next: next
+                }
 
                 if(alert.$payload){
                   // let value
@@ -574,6 +605,9 @@ module.exports = {
 
                     payload = Object.clone(alert.$payload)
                     payload.property = name+'.'+key
+                    // payload.opts = opts
+                    payload.next = next
+                    // payload.pipeline = pipeline
                     let alert_payload = {}
 
                     // if(Array.isArra(alert.$payload.$extra)){
@@ -605,18 +639,17 @@ module.exports = {
                   }
                   else{
                     payload['extra'] = recurse_alerts(alert.$payload, original_doc, null)
-                    payload.property = name+'.'+key
                   }
 
 
 
                   // value = recurse_alerts(alert.$payload, original_doc, null)
-                  // console.log('alert.$payload', alerts_payloads)
+                  // //console.log('alert.$payload', alerts_payloads)
                   // payload['extra'] = value
                 }
-                else{
-                  payload.property = name+'.'+key
-                }
+                // else{
+                //   payload.property = name+'.'+key
+                // }
 
                 result = fn.attempt([doc[key], payload])
 
@@ -648,7 +681,7 @@ module.exports = {
 	],
 	output: [
     function(doc){
-      // //console.log('os alerts output',doc.metadata, JSON.decode(doc))
+      //console.log('os alerts output',JSON.decode(doc))
     },
     //require('./snippets/output.stdout.template'),
     // {
