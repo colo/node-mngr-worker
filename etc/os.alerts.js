@@ -345,8 +345,15 @@ module.exports = {
                   generic_data_watcher(data, charts[name], name, update_tabular_stat)
 
                 Object.each(charts, function(chart, key){
-                  if(chart.match &&  chart.match.test(name) && (chart != charts[name]))
+                  let chart_host = key.split('.')[0]
+                  if(
+                    chart_host == host
+                    && chart.match &&  chart.match.test(name)
+                    && (chart != charts[name])
+                  ){
+                    console.log('generic_data_watcher', key, name)
                     generic_data_watcher(data, chart, key, update_tabular_stat)
+                  }
                 })
               }
             })
@@ -358,10 +365,10 @@ module.exports = {
         * after 'os', avoind recalling it on os.historical or other
         */
         if(doc[0].doc.metadata.path == 'os'){
-
-          if(tabular_stats.elk)
-          // ///console.log('TABULAR STATS', tabular_stats.elk.os.minute)
-
+        //
+        //   // if(tabular_stats.elk)
+        //   // ///console.log('TABULAR STATS', tabular_stats.elk.os.minute)
+        //
           next({ data: Object.clone(stats), tabular: Object.clone(tabular_stats)},opts, next, pipeline)
         }
       }
@@ -379,29 +386,23 @@ module.exports = {
         // process_historical_minute_doc(doc, opts, next, pipeline)
       }
 
-      Object.each(extracted.keys, function(data, key){
-        if(!stats[extracted.host])
-          stats[extracted.host] = {}
+      if(extracted.keys){
+        Object.each(extracted.keys, function(data, key){
+          if(!stats[extracted.host])
+            stats[extracted.host] = {}
 
-        if(!stats[extracted.host][extracted.path])
-          stats[extracted.host][extracted.path] = {}
+          if(!stats[extracted.host][extracted.path])
+            stats[extracted.host][extracted.path] = {}
 
-        stats[extracted.host][extracted.path][key] = data
+          stats[extracted.host][extracted.path][key] = data
 
-      }.bind(this))
+        }.bind(this))
 
-      initialize_all_charts(stats)
-
-
-
-
-
-      // //console.log('process_os_doc alerts filter', charts )
-      // //console.log('process_os_doc alerts filter', stats )
-      // //console.log('process_os_doc alerts filter TABULAR', tabular_stats )
+        initialize_all_charts(stats)
+      }
 
 
-      // //console.log('process_os_doc alerts filter tabular_stats', tabular_stats.elk.os.cpus )
+
 
 
     },
@@ -529,7 +530,7 @@ module.exports = {
       // // Object.merge(expanded_alerts, _alerts)
 
       // console.log('ALL alerts', all_alerts.tabular[0]['%hosts'].os.loadavg['$payload'])
-      console.log('ALL alerts', doc.tabular.elk.os.minute)
+      // console.log('ALL alerts', doc.tabular.elk.os.minute)
 
       let original_doc = doc//needed to recurse $payload
 
