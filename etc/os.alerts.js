@@ -317,7 +317,7 @@ module.exports = {
 		function(doc, opts, next, pipeline){
       let extracted = {}
 
-      if(doc[0].doc.metadata.path != 'os.historical'){
+      if(doc[0].doc && doc[0].doc.metadata.path != 'os.historical'){
         extracted = Object.clone(extract_data_os(doc))
         if(!pipeline.inputs[1].conn_pollers[0].minute.hosts[extracted.host])
           pipeline.inputs[1].conn_pollers[0].minute.hosts[extracted.host] = 1
@@ -365,7 +365,7 @@ module.exports = {
           next({ data: Object.clone(stats), tabular: Object.clone(tabular_stats)},opts, next, pipeline)
         }
       }
-      else{
+      else if(doc[0].doc && doc[0].doc.metadata){
         extracted = Object.clone(extract_data_os_historical(doc))
         extracted.path = extracted.path.replace('/', '.')
 
@@ -416,12 +416,12 @@ module.exports = {
           condensed = condensed.replace(sub_key, '')
 
           // sub_key = sub_key.replace(/\/|_|-/g, '.')
-          
+
           let rest_key = condensed.substring(condensed.indexOf('.')+1, condensed.length).trim()
           // rest_key = rest_key.replace('_', '.')
 
           // Array.each(arr_keys, function(arr_key, index){
-          console.log('sub_key', sub_key, rest_key)
+          // console.log('sub_key', sub_key, rest_key)
 
           if(sub_key.length > 0){
             let sub_alert = undefined
