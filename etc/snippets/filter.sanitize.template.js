@@ -42,7 +42,7 @@ module.exports = function(doc, opts, next){//sanitize + metadata
 		doc['metadata'] = metadata;
 	}
 
-	console.log('sanitized doc', doc)
+	// console.log('sanitized doc', doc)
 	debug_internals('sanitize + metadata filter %o', doc);
 	debug_internals('sanitize + metadata filter->next %o', next);
 
