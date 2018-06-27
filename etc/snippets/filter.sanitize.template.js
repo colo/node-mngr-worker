@@ -1,7 +1,7 @@
 var debug = require('debug')('filter:sanitize');
 var debug_internals = require('debug')('filter:sanitize:Internals');
 
-module.exports = function(doc, opts, next, pipeline){//sanitize + metadata
+module.exports = function(doc, opts, next){//sanitize + metadata
 	let { type, input, input_type, app } = opts;
 
 	debug_internals('TO _sanitize_doc opts %o', opts);
@@ -42,9 +42,10 @@ module.exports = function(doc, opts, next, pipeline){//sanitize + metadata
 		doc['metadata'] = metadata;
 	}
 
+	console.log('sanitized doc', doc)
 	debug_internals('sanitize + metadata filter %o', doc);
 	debug_internals('sanitize + metadata filter->next %o', next);
 
 	//return doc;
-	next(doc, opts, next, pipeline);
+	next(doc);
 }

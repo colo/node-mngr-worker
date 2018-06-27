@@ -5,7 +5,7 @@ var debug_internals = require('debug')('filter:os-stats:Internals');
  * recives an array of OS docs and does some statictics on freemem
  *
  **/
-module.exports = function(doc, opts, next, pipeline){
+module.exports = function(doc, opts, next){
 
 	var ss = require('simple-statistics');
 
@@ -18,30 +18,29 @@ module.exports = function(doc, opts, next, pipeline){
 		let last = doc[doc.length - 1].doc.metadata.timestamp;
 
 		let values = {};
+
 		Array.each(doc, function(d){
 			let data = d.doc.data;
-			let timestamp = d.doc.metadata.timestamp;
+			let path = d.key[0];
 			let host = d.key[1];
+
+			// console.log('other docs', d.key)
+
 
 			if(!values[host]) values[host] = {};
 
-			debug_internals('os-stats filter get HOST %o', d.doc.metadata.timestamp);
+			if(!values[host][path]) values[host][path] = {};
+
+			debug_internals('os-stats filter get HOST %o', d.key[1]);
 
 			Object.each(data, function(value, key){
 				if(key != 'networkInterfaces' && key != 'totalmem'){
-					if(!values[host][key] && key == 'cpus'){
-						values[host][key] = [];
-					}
-					else if(!values[host][key]){
-						values[host][key] = {};
-						// values[host][key] = [];
-					}
+
+					if(!values[host][path][key]) values[host][path][key] = [];
 
 					if(key == 'cpus' ){
 						Array.each(value, function(cpu, core){
-							if(!values[host][key][core])
-								values[host][key][core] = {}
-								// values[host][key][core] = [];
+							if(!values[host][path][key][core]) values[host][path][key][core] = [];
 
 							let data = {};
 							data = {
@@ -50,17 +49,15 @@ module.exports = function(doc, opts, next, pipeline){
 							};
 
 							debug_internals('os-stats filter core %d', core);
-							// values[host][key][core].push(data);
-							values[host][key][core][timestamp] = data
+							values[host][path][key][core].push(data);
 						});//iterate on each core
 					}
 					else if(key == 'loadavg'){//keep only "last minute" value
-						// values[host][key].push(value[0]);
-						values[host][key][timestamp] = value[0]
+						values[host][path][key].push(value[0]);
 					}
 					else{
-						// values[host][key].push(value);
-						values[host][key][timestamp] = value
+
+						values[host][path][key].push(value);
 					}
 
 				}
@@ -69,110 +66,107 @@ module.exports = function(doc, opts, next, pipeline){
 			});
 		});
 
-		Object.each(values, function(data, host){
+		Object.each(values, function(host_data, host){
 
-			let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
+			Object.each(host_data, function(data, path){
 
-			Object.each(data, function(value, key){
+				let new_doc = {data: {}, metadata: {range: {start: null, end: null}}};
 
-				debug_internals('os-stats filter value %s %s', key, typeof(value));
+				Object.each(data, function(value, key){
 
-				if(key == 'cpus' ){
-					let speed = {};
-					let times = {};
+					debug_internals('os-stats filter value %o', value);
 
-					Array.each(value, function(sample){
-						debug_internals('os-stats filter cpu sample %o', sample);
+					if(key == 'cpus' ){
+						let speed = [];
+						let times = {};
+						Array.each(value, function(sample){
+							Array.each(sample, function(cpu, core){
+								//if(!speed[core]) speed[core] = [];
 
-						// Array.each(sample, function(cpu, core){
-						Object.each(sample, function(cpu, timestamp){
-							//if(!speed[core]) speed[core] = [];
+								debug_internals('os-stats filter speed %o', cpu);
 
-							debug_internals('os-stats filter speed %o', cpu);
+								//speed[core].push(cpu.speed)
+								speed.push(cpu.speed);
 
-							// speed.push(cpu.speed);
-							speed[timestamp] = cpu.speed
+								let sample_time = {};
+								Object.each(cpu.times, function(time, key){//user,nice..etc
+									if(!times[key]) times[key] = [];
+									times[key].push(time);
+								});
 
-							let sample_time = {};
-							Object.each(cpu.times, function(time, key){//user,nice..etc
-								if(!times[key])
-									times[key] = {};
-									// times[key] = [];
-
-								// times[key].push(time);
-								times[key][timestamp] = time;
 							});
 
 						});
 
-					});
+						Object.each(times, function(time, key){//user,nice..etc
+							let min = ss.min(time);
+							let max = ss.max(time);
 
-					Object.each(times, function(time, key){//user,nice..etc
-						let data_values = Object.values(time);
+							let data = {
+								samples: time,
+								min : ss.min(time),
+								max : ss.max(time),
+								mean : ss.mean(time),
+								median : ss.median(time),
+								mode : ss.mode(time),
+								range: max - min,
+							};
 
-						let min = ss.min(data_values);
-						let max = ss.max(data_values);
+							times[key] = data;
+						});
 
-						let data = {
-							samples: time,
-							min : ss.min(data_values),
-							max : ss.max(data_values),
-							mean : ss.mean(data_values),
-							median : ss.median(data_values),
-							mode : ss.mode(data_values),
-							range: max - min,
+						let min = ss.min(speed);
+						let max = ss.max(speed);
+
+						new_doc['data'][key] = {
+							//samples: value,
+							speed: {
+								samples: speed,
+								min : ss.min(speed),
+								max : ss.max(speed),
+								mean : ss.mean(speed),
+								median : ss.median(speed),
+								mode : ss.mode(speed),
+								range: max - min,
+							},
+							times: times
 						};
-
-						times[key] = data;
-					});
-
-					let data_values = Object.values(speed);
-
-					let min = ss.min(data_values);
-					let max = ss.max(data_values);
-
-					new_doc['data'][key] = {
-						//samples: value,
-						speed: {
-							samples: speed,
-							min : ss.min(data_values),
-							max : ss.max(data_values),
-							mean : ss.mean(data_values),
-							median : ss.median(data_values),
-							mode : ss.mode(data_values),
-							range: max - min,
-						},
-						times: times
-					};
-				}
-				else{
-					let data_values = Object.values(value);
-					let min = ss.min(data_values);
-					let max = ss.max(data_values);
-
-					new_doc['data'][key] = {
-						samples : value,
-						min : min,
-						max : max,
-						mean : ss.mean(data_values),
-						median : ss.median(data_values),
-						mode : ss.mode(data_values),
-						range: max - min
-					};
-				}
-
-				new_doc['metadata'] = {
-					type: 'minute',
-					host: host,
-					range: {
-						start: first,
-						end: last
 					}
-				};
+					else{
+						let min = ss.min(value);
+						let max = ss.max(value);
 
-				next(new_doc, opts, next, pipeline);
-			});
+						new_doc['data'][key] = {
+							samples : value,
+							min : min,
+							max : max,
+							mean : ss.mean(value),
+							median : ss.median(value),
+							mode : ss.mode(value),
+							range: max - min
+						};
+					}
 
+					let historical_path = 'os.historical'
+
+					if(path != 'os')
+						historical_path = historical_path+'.'+path.replace('os.', '')
+
+					new_doc['metadata'] = {
+						type: 'minute',
+						host: host,
+						path: historical_path,
+						range: {
+							start: first,
+							end: last
+						}
+					};
+
+
+					next(new_doc, opts);
+				});
+
+			})
 		});
 
 
