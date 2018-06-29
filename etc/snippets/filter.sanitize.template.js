@@ -1,12 +1,18 @@
 var debug = require('debug')('filter:sanitize');
 var debug_internals = require('debug')('filter:sanitize:Internals');
 
-module.exports = function(doc, opts, next){//sanitize + metadata
+module.exports = function(doc, opts, next, pipeline){//sanitize + metadata
 	let { type, input, input_type, app } = opts;
 
 	debug_internals('TO _sanitize_doc opts %o', opts);
 
 	let doc_id = input.options.id +'.'+input_type.options.id +'.'+app.options.id;
+	if(doc['metadata'].path)
+		doc_id += '.'+doc['metadata'].path
+
+	if(doc['metadata'].range)
+		doc_id += '.'+doc['metadata'].range.start +'-'+ doc['metadata'].range.end
+
 	let timestamp = Date.now();
 
 	if(!doc.data){
@@ -42,10 +48,9 @@ module.exports = function(doc, opts, next){//sanitize + metadata
 		doc['metadata'] = metadata;
 	}
 
-	// console.log('sanitized doc', doc)
 	debug_internals('sanitize + metadata filter %o', doc);
 	debug_internals('sanitize + metadata filter->next %o', next);
 
 	//return doc;
-	next(doc);
+	next(doc, opts, next, pipeline);
 }
