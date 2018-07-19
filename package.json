@@ -25,6 +25,7 @@
     "node-cron": "^1.2.1",
     "node-express-app": "git+https://github.com/colo/node-express-app.git",
     "simple-statistics": "^5.2.1",
-    "supports-color": "^5.1.0"
+    "supports-color": "^5.1.0",
+    "zipson": "^0.2.9"
   }
 }
