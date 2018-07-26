@@ -6,13 +6,13 @@ module.exports = {
 			port: 5984,
 			db: '',
 			opts: {
-				cache: true,
+				cache: false,
 				raw: false,
 				forceSave: true,
 			},
 		},
 	],
-	
+
 	buffer:{
 		size: 5,
 		expire: 5000, //miliseconds
