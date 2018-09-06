@@ -28,7 +28,7 @@ const OutputCradleConf =  process.env.NODE_ENV === 'production'
       ? require('./config/output/cradle/prod.conf')
       : require('./config/output/cradle/dev.conf');
 
-const Pipeline = require('./lib/pipeline');
+const Pipeline = require('js-pipeline');
 
 var debug = require('debug')('Server:App');
 
