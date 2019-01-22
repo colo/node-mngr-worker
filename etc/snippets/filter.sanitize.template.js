@@ -6,7 +6,8 @@ module.exports = function(doc, opts, next, pipeline){//sanitize + metadata
 
 	debug_internals('TO _sanitize_doc opts %o', doc);
 
-	let doc_id = input.options.id +'.'+input_type.options.id +'.'+app.options.id;
+	// let doc_id = input.options.id +'.'+input_type.options.id +'.'+app.options.id;
+	let doc_id = input_type.options.id +'.'+app.options.id;
 	if(doc['metadata'] && doc['metadata'].path)
 		doc_id += '.'+doc['metadata'].path
 
