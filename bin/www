@@ -7,12 +7,14 @@
 var app = require('../app');
 var debug = require('debug')(process.env.npm_package_name || 'Server');
 var http = require('http');
+//var process = require('process');
 
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || process.env.npm_package_config_port || '3000');
+var host = process.env.HOST || process.env.npm_package_config_host || 'localhost';
 app.set('port', port);
 
 /**
@@ -25,7 +27,12 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+//server.listen(port);
+server.listen({
+    host: host,
+    port: port
+});
+
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -87,4 +94,14 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+
+  if(process.env.npm_package_config_groups)
+		process.setgroups(process.env.npm_package_config_groups);
+
+	if(process.env.npm_package_config_gid)
+		process.setgid(process.env.npm_package_config_gid);
+
+  if(process.env.npm_package_config_uid)
+		process.setuid(process.env.npm_package_config_uid);
+
 }
