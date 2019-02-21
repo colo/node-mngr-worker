@@ -6,11 +6,12 @@ module.exports = function(doc, opts, next, pipeline){//sanitize + metadata
 
 	debug_internals('TO _sanitize_doc opts %o', input_type.options.id);
 
-	// let doc_id = input.options.id +'.'+input_type.options.id +'.'+app.options.id;
-	let doc_id = input_type.options.id
-	if(app.options.id)
-	 doc_id += '.'+app.options.id
-	 
+	let doc_id = []
+	if(input && input.options && input.options.id) doc_id.push(input.options.id)
+	if(input_type && input_type.options && input_type.options.id) doc_id.push(input_type.options.id)
+	if(app && app.options && app.options.id) doc_id.push(app.options.id)
+	doc_id = (doc_id.length > 0) ? doc_id.join('.') : ''
+
 	if(doc['metadata'] && doc['metadata'].path)
 		doc_id += '.'+doc['metadata'].path
 
@@ -38,9 +39,9 @@ module.exports = function(doc, opts, next, pipeline){//sanitize + metadata
 	}
 
 	let metadata = {
-		id: input.options.id,
-		host: input_type.options.id,
-		path: app.options.id,
+		id: doc.id,
+		host: (input_type && input_type.options && input_type.options.id ) ? input_type.options.id : '',
+		path: (app && app.options && app.options.id) ? app.options.id : '',
 		type: type,
 		timestamp: timestamp
 	};
