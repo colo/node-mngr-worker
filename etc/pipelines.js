@@ -11,9 +11,11 @@ module.exports = [
 
     require(path.join(process.cwd(), 'apps/historical/minute/pipeline'))(conn),
     require(path.join(process.cwd(), 'apps/historical/hour/pipeline'))(conn),
-    
-    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline')),
-    require(path.join(process.cwd(), 'apps/purge/historical/pipeline')),
+
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(conn),
+    require(path.join(process.cwd(), 'apps/purge/ui/pipeline'))(conn),
+    require(path.join(process.cwd(), 'apps/purge/historical/pipeline'))(conn),
+
 
     // require(path.join(process.cwd(), 'apps/os/alerts/pipeline')),
 ]
