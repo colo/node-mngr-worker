@@ -7,7 +7,7 @@ module.exports = [
     //
     require(path.join(process.cwd(), 'apps/os/pipeline')),
     require(path.join(process.cwd(), 'apps/munin/pipeline'))(conn),
-
+    require(path.join(process.cwd(), 'apps/ui/pipeline'))(conn),
 
     require(path.join(process.cwd(), 'apps/historical/minute/pipeline'))(conn),
     require(path.join(process.cwd(), 'apps/historical/hour/pipeline'))(conn),
