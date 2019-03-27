@@ -30,7 +30,9 @@ const OutputCradleConf =  process.env.NODE_ENV === 'production'
 
 const Pipeline = require('js-pipeline');
 
-var debug = require('debug')('Server:App');
+var debug = require('debug')('Server:App'),
+    debug_internals = require('debug')('Server:App:Internals'),
+    debug_events = require('debug')('Server:App:Events');
 
 process.on('uncaughtException', (err) => {
 
@@ -103,10 +105,24 @@ var Server = new Class({
 				//this.poll_app.fireEvent(this.poll_app[event_name], req);
 
 			//}
+      let pipeline_index = (req.query && req.query.pipeline_index) ? req.query.pipeline_index : undefined
+      let pipeline_id = (req.query && req.query.pipeline_id) ? req.query.pipeline_id : undefined
+      pipeline_index = (pipeline_id) ? pipeline_id : undefined
+      
+      // debug_internals('PRE firing event on pipe..', req.query, pipeline_id, pipeline_index)
 
 			Array.each(this.pipelines, function(pipe, index){
-				if(pipe[event_name])
-					pipe.fireEvent(pipe[event_name], req);
+
+        if(pipeline_id && pipe.options.id && (pipeline_id == pipe.options.id))
+          pipeline_index = index
+
+        debug_internals('PRE firing event on pipe..', pipeline_id, pipeline_index)
+
+				if(pipe[event_name] && (pipeline_index == index || !pipeline_index)){
+          debug_internals('firing event on pipe..', pipe.options.id, index)
+					pipe.fireEvent(pipe[event_name], req)
+        }
+
 			}.bind(this));
 
 			res.json({status: 'OK'});
