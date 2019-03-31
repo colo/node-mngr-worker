@@ -10,18 +10,18 @@ const App = require('node-express-app'),
 
 module.exports = new Class({
   Extends: App,
-	
+
 	app: null,
   logger: null,
   authorization:null,
   authentication: null,
   //poll_app: null,
   pipelines: [],
-  
+
   options: {
-		
+
 		pipelines: null,
-		
+
 	  /**
 	   * @poller
 	   * */
@@ -29,26 +29,26 @@ module.exports = new Class({
 		/**
 	   * @poller
 	   * */
-	   
-		id: '',
+
+		id: os.hostname(),
 		path: '/',
-		
+
 		authentication: {
 			users : [
 					{ id: 1, username: 'anonymous' , role: 'anonymous', password: ''}
 			],
 		},
-		
+
 		logs: null,
-		
+
 		//authorization: {
 			//config: path.join(__dirname,'./rbac.json'),
 		//},
-		
+
 		params: {
 			event: /exit|resume|suspend|once|range/
 		},
-		
+
 		middlewares: [
 			bodyParser.json(),
 			bodyParser.urlencoded({ extended: true }),
@@ -56,12 +56,12 @@ module.exports = new Class({
 				'exposedHeaders': ['Link', 'Content-Range']
 			})
 	  ],
-	  
+
 		api: {
-			
+
 			version: '1.0.0',
-			
-			
+
+
 			routes: {
 				get: [
 					{
@@ -93,11 +93,10 @@ module.exports = new Class({
 					},
 				]
 			},
-			
+
 		},
   },
-  
-	
-  
-});
 
+
+
+});

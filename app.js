@@ -108,7 +108,7 @@ var Server = new Class({
       let pipeline_index = (req.query && req.query.pipeline_index) ? req.query.pipeline_index : undefined
       let pipeline_id = (req.query && req.query.pipeline_id) ? req.query.pipeline_id : undefined
       pipeline_index = (pipeline_id) ? pipeline_id : undefined
-      
+
       // debug_internals('PRE firing event on pipe..', req.query, pipeline_id, pipeline_index)
 
 			Array.each(this.pipelines, function(pipe, index){
@@ -125,7 +125,7 @@ var Server = new Class({
 
 			}.bind(this));
 
-			res.json({status: 'OK'});
+			res.json({event: event_name, pipeline_index: pipeline_index, status: 'OK'});
 		}
 		else{
 			res.json({allowed: this.options.params.event.toString()});
@@ -134,8 +134,8 @@ var Server = new Class({
   get: function(req, res, next){
 		//console.log(req.params);
 
-		res.status(204).send();
-
+		// res.status(204).send();
+    res.json({ id: this.options.id });
   },
 
   initialize: function(options){
