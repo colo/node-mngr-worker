@@ -45,7 +45,7 @@ process.on('uncaughtException', (err) => {
 })
 
 //we register many 'exit' events on this emmiter to handle shutdown gracefully (ex: Poller), set it 0 to avoid Warning
-process.setMaxListeners(0);
+process.setMaxListeners(30);
 
 //const {NodeVM, VMScript} = require('vm2');
 
@@ -273,13 +273,14 @@ module.exports = server.express();
 **/
 
 const usage = require('usage')
-const CHECK_CPU_USAGE_INTERVAL    = 1000*60; // every minute
-const HIGH_CPU_USAGE_LIMIT        = 70; // percentage
+const CHECK_CPU_USAGE_INTERVAL    = 1000 * 10; // every 10 sec
+const HIGH_CPU_USAGE_LIMIT        = 50; // percentage
 
 let autoRestart = setInterval(function()
 {
     usage.lookup(process.pid, function(err, result)
     {
+      debug_internals('lookup', err, result, process.pid);
         if(!err)
         {
             if(result.cpu > HIGH_CPU_USAGE_LIMIT)
@@ -287,7 +288,7 @@ let autoRestart = setInterval(function()
                 // log
                 debug_internals('restart due to high cpu usage');
 
-                // restart because forever will respawn your process
+                // restart because forever/pm2 will respawn your process
                 process.exit(-1);
             }
         }
