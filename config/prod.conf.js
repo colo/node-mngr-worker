@@ -14,7 +14,7 @@ var session = require('express-session'),
  * `winston.transports.Logstash`
  * */
 //require('winston-logstash');
-	
+
 /*
 var common = require('winston/lib/winston/common');
 
@@ -33,45 +33,47 @@ var trasnform = function (level, msg, meta, self) {
 
 module.exports = new Class({
   Extends: BaseApp,
-  
+
   options: {
-		
-		input: {
-			poll: { 
-				"localhost" : [
-					{scheme: 'http', host:'127.0.0.1', port: 8081},
-					//{scheme: 'http', url:'127.0.0.1', port: 8082},
-					//{scheme: 'http', url:'127.0.0.1', port: 8083},
-					//{scheme: 'http', url:'127.0.0.1', port: 8084},
-					//{scheme: 'http', url:'127.0.0.1', port: 8085},
-					//{scheme: 'http', url:'127.0.0.1', port: 8086},
-					//{scheme: 'http', url:'127.0.0.1', port: 8087},
-					//{scheme: 'http', url:'127.0.0.1', port: 8088},
-					//{scheme: 'http', url:'127.0.0.1', port: 8089},
-					//{scheme: 'http', url:'127.0.0.1', port: 8090},
-					//{scheme: 'http', url:'127.0.0.1', port: 8091},
-					//{scheme: 'http', url:'127.0.0.1', port: 8092},
-					//{scheme: 'http', url:'127.0.0.1', port: 8093},
-					//{scheme: 'http', url:'127.0.0.1', port: 8094},
-					//{scheme: 'http', url:'127.0.0.1', port: 8095},
-					//{scheme: 'http', url:'127.0.0.1', port: 8096},
-					//{scheme: 'http', url:'127.0.0.1', port: 8097},
-					//{scheme: 'http', url:'127.0.0.1', port: 8098},
-					//{scheme: 'http', url:'127.0.0.1', port: 8099},
-					//{scheme: 'http', url:'127.0.0.1', port: 8100},
-				], 
-			}
-		},
-		
+
+		pipelines: require('../devel/etc/pipelines'),
+
+		// input: {
+		// 	poll: {
+		// 		"localhost" : [
+		// 			{scheme: 'http', host:'127.0.0.1', port: 8081},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8082},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8083},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8084},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8085},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8086},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8087},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8088},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8089},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8090},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8091},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8092},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8093},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8094},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8095},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8096},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8097},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8098},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8099},
+		// 			//{scheme: 'http', url:'127.0.0.1', port: 8100},
+		// 		],
+		// 	}
+		// },
+
 		logs: {
 			loggers: {
 				error: null,
 				access: null,
 				profiling: null
 			},
-			
+
 			path: './logs',
-			
+
 			//default: [
 				//{ transport: '//console', options: { colorize: 'true', level: 'warning' } },
 				//{ transport: 'logstash', options: {level: 'info', port: 28777, node_name: 'mngr-api', host: '192.168.0.40' } }
@@ -81,7 +83,7 @@ module.exports = new Class({
 				//{ transport: winston.transports.Logstash, options: {transform: trasnform, level: 'info', port: 28777, node_name: 'mngr-api', host: '192.168.0.40' } }
 			//]
 		},
-		
+
 		authentication: {
 			users : [
 				{ id: 1, username: 'anonymous' , role: 'anonymous', password: ''},
@@ -93,13 +95,13 @@ module.exports = new Class({
 				{ id: 3, username: 'test' , role: 'user', password: '123'}
 			],
 		},
-		
+
 	},
 	initialize: function(options){
-		
+
 		//this.options.middlewares.unshift(helmet.hidePoweredBy({ setTo: 'PHP 4.2.0' }));
 		this.options.middlewares.unshift(helmet());
-			
+
 		this.options.session = session({
 				store: new MemoryStore({
 					checkPeriod: 3600000 // prune expired entries every hour
@@ -111,30 +113,30 @@ module.exports = new Class({
 				name: 'mngr.poller',
 				unset: 'destroy'
 		});
-		
-		if(process.env.NODE_ENV === 'production'){
-			/**
-			 * add 'check_authentication' & 'check_authorization' to each route
-			 * */
-			Object.each(this.options.api.routes, function(routes, verb){
-				
-				if(verb != 'all'){
-					Array.each(routes, function(route){
-						//debug('route: ' + verb);
-						route.callbacks.unshift('check_authorization');
-						route.callbacks.unshift('check_authentication');
-						
-						if(verb == 'get')//users can "read" info
-							route.roles = ['user']
-					});
-				}
-				
-			});
-		}
-		
+
+		// if(process.env.NODE_ENV === 'production'){
+		// 	/**
+		// 	 * add 'check_authentication' & 'check_authorization' to each route
+		// 	 * */
+		// 	Object.each(this.options.api.routes, function(routes, verb){
+    //
+		// 		if(verb != 'all'){
+		// 			Array.each(routes, function(route){
+		// 				//debug('route: ' + verb);
+		// 				route.callbacks.unshift('check_authorization');
+		// 				route.callbacks.unshift('check_authentication');
+    //
+		// 				if(verb == 'get')//users can "read" info
+		// 					route.roles = ['user']
+		// 			});
+		// 		}
+    //
+		// 	});
+		// }
+
 		this.parent(options);//override default options
-		
-		
+
+
 	}
-	
+
 });
