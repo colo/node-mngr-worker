@@ -1,5 +1,8 @@
 'use strict'
 
+require('http').globalAgent.maxSockets = Infinity
+require('https').globalAgent.maxSockets = Infinity
+
 const App = require('node-express-app'),
 			os = require('os'),
 			path = require('path'),
