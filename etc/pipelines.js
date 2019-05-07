@@ -9,6 +9,8 @@ module.exports = [
 
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
     
+    require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL),
+        
     require(path.join(process.cwd(), 'apps/os/pipeline')),
     require(path.join(process.cwd(), 'apps/munin/pipeline'))(conn),
     require(path.join(process.cwd(), 'apps/ui/pipeline'))(conn),
