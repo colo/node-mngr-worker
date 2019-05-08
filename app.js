@@ -274,7 +274,7 @@ module.exports = server.express();
 
 const usage = require('usage')
 const CHECK_CPU_USAGE_INTERVAL    = 1000 * 10; // every 10 sec
-const HIGH_CPU_USAGE_LIMIT        = 50; // percentage
+const HIGH_CPU_USAGE_LIMIT        = 200; // percentage
 
 let autoRestart = setInterval(function()
 {
