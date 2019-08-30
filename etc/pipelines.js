@@ -1,18 +1,22 @@
 const path = require('path')
 
-let conn = require('./default.conn')()
-let redis = require('./default.redis')
-let bbb_conn = require('./bbb.conn.js')()
+const conn = require('./default.conn')()
+const redis = require('./default.redis')
+const bbb_conn = require('./bbb.conn.js')()
+const frontail = require('./default.frontail')
+const http_os = require('./http.os')
+const munin = require('./munin')
 
 module.exports = [
     //require('./local/munin.js'),
 
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
-    
+
     require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL),
-        
-    require(path.join(process.cwd(), 'apps/os/pipeline')),
-    require(path.join(process.cwd(), 'apps/munin/pipeline'))(conn),
+
+    require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
+
+    require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
     require(path.join(process.cwd(), 'apps/ui/pipeline'))(conn),
 
     require(path.join(process.cwd(), 'apps/historical/minute/pipeline'))(conn),
