@@ -272,25 +272,25 @@ module.exports = server.express();
 * https://stackoverflow.com/questions/25976783/how-to-restart-my-node-js-app-when-the-cpu-usage-reach-100-on-amazon-ec2-and-th
 **/
 
-const usage = require('usage')
-const CHECK_CPU_USAGE_INTERVAL    = 1000 * 10; // every 10 sec
-const HIGH_CPU_USAGE_LIMIT        = 200; // percentage
-
-let autoRestart = setInterval(function()
-{
-    usage.lookup(process.pid, function(err, result)
-    {
-      debug_internals('lookup', err, result, process.pid);
-        if(!err)
-        {
-            if(result.cpu > HIGH_CPU_USAGE_LIMIT)
-            {
-                // log
-                debug_internals('restart due to high cpu usage');
-
-                // restart because forever/pm2 will respawn your process
-                process.exit(-1);
-            }
-        }
-    });
-}, CHECK_CPU_USAGE_INTERVAL);
+// const usage = require('usage')
+// const CHECK_CPU_USAGE_INTERVAL    = 1000 * 10; // every 10 sec
+// const HIGH_CPU_USAGE_LIMIT        = 200; // percentage
+//
+// let autoRestart = setInterval(function()
+// {
+//     usage.lookup(process.pid, function(err, result)
+//     {
+//       debug_internals('lookup', err, result, process.pid);
+//         if(!err)
+//         {
+//             if(result.cpu > HIGH_CPU_USAGE_LIMIT)
+//             {
+//                 // log
+//                 debug_internals('restart due to high cpu usage');
+//
+//                 // restart because forever/pm2 will respawn your process
+//                 process.exit(-1);
+//             }
+//         }
+//     });
+// }, CHECK_CPU_USAGE_INTERVAL);
