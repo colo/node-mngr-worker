@@ -12,11 +12,19 @@ module.exports = [
 
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
 
-    require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL),
+
+    require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL, conn),
 
     require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
 
     require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
+
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: conn, output: conn, table: 'logs'}),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: conn, output: conn, table: 'os'}),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: conn, output: conn, table: 'munin'}),
+
+    
+    /**
     require(path.join(process.cwd(), 'apps/ui/pipeline'))(conn),
 
     require(path.join(process.cwd(), 'apps/historical/minute/pipeline'))(conn),
@@ -25,7 +33,7 @@ module.exports = [
     require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(conn),
     require(path.join(process.cwd(), 'apps/purge/historical/pipeline'))(conn),
     require(path.join(process.cwd(), 'apps/purge/ui/pipeline'))(conn, redis),
-
+    **/
 
     // require(path.join(process.cwd(), 'apps/os/alerts/pipeline')),
 ]
