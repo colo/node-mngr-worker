@@ -7,6 +7,12 @@ const frontail = require('./default.frontail')
 const http_os = require('./http.os')
 const munin = require('./munin')
 
+const periodical_stats_filters = [
+  require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
+  require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
+]
+
 module.exports = [
     //require('./local/munin.js'),
 
@@ -19,9 +25,27 @@ module.exports = [
 
     require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
 
-    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: Object.merge(Object.clone(conn), {table: 'logs'}), output: Object.merge(Object.clone(conn), {table: 'logs_historical'})}),
-    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: Object.merge(Object.clone(conn), {table: 'os'}), output: Object.merge(Object.clone(conn), {table: 'os_historical'})}),
-    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: Object.merge(Object.clone(conn), {table: 'munin'}), output: Object.merge(Object.clone(conn), {table: 'munin_historical'})}),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'logs'}),
+        output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+        filters: Array.clone(periodical_stats_filters)
+      }
+    ),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'os'}),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(periodical_stats_filters)
+      }
+    ),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(periodical_stats_filters)
+      }
+    ),
 
 
 
