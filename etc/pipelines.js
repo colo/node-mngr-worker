@@ -19,11 +19,12 @@ module.exports = [
 
     require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
 
-    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: conn, output: conn, table: 'logs'}),
-    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: conn, output: conn, table: 'os'}),
-    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: conn, output: conn, table: 'munin'}),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: Object.merge(Object.clone(conn), {table: 'logs'}), output: Object.merge(Object.clone(conn), {table: 'logs_historical'})}),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: Object.merge(Object.clone(conn), {table: 'os'}), output: Object.merge(Object.clone(conn), {table: 'os_historical'})}),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))({input: Object.merge(Object.clone(conn), {table: 'munin'}), output: Object.merge(Object.clone(conn), {table: 'munin_historical'})}),
 
-    
+
+
     /**
     require(path.join(process.cwd(), 'apps/ui/pipeline'))(conn),
 
