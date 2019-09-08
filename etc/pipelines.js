@@ -25,14 +25,14 @@ module.exports = [
 
     require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
 
-    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'logs'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     filters: Array.clone(periodical_stats_filters),
-    //     type: 'minute'
-    //   }
-    // ),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'logs'}),
+        output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+        filters: Array.clone(periodical_stats_filters),
+        type: 'minute'
+      }
+    ),
     require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
       {
         input: Object.merge(Object.clone(conn), {table: 'os'}),
@@ -41,23 +41,41 @@ module.exports = [
         type: 'minute'
       }
     ),
-    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'munin'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
-    //     filters: Array.clone(periodical_stats_filters),
-    //     type: 'minute'
-    //   }
-    // ),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(periodical_stats_filters),
+        type: 'minute'
+      }
+    ),
 
-    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     filters: Array.clone(hour_stats_filters),
-    //     type: 'hour'
-    //   }
-    // ),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(hour_stats_filters),
+        type: 'hour'
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(hour_stats_filters),
+        type: 'hour'
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+        filters: Array.clone(hour_stats_filters),
+        type: 'hour'
+      }
+    ),
 
 
 
