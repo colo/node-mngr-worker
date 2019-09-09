@@ -33,7 +33,12 @@ module.exports = [
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
 
 
-    require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL, conn),
+    // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL, conn),
+    require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
+      path.join(process.cwd(), 'file_path'),
+      SITE_URL,
+      conn
+    ),
 
     require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
 
