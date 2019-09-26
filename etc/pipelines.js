@@ -32,7 +32,8 @@ module.exports = [
 
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
 
-
+    require(path.join(process.cwd(), 'apps/educativa_check/pipeline'))(http_os, conn),
+    
     // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL, conn),
     require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
       path.join(process.cwd(), 'file_path'),
