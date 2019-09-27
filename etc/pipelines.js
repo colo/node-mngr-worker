@@ -6,6 +6,7 @@ const bbb_conn = require('./bbb.conn.js')()
 const frontail = require('./default.frontail')
 const http_os = require('./http.os')
 const munin = require('./munin')
+const telegram = require('./telegram')
 
 const periodical_stats_filters = [
   require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
@@ -32,16 +33,36 @@ module.exports = [
 
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
 
+    require(path.join(process.cwd(), 'apps/vhosts/pipeline'))(http_os, conn),
+
     require(path.join(process.cwd(), 'apps/educativa/checks/vhosts/pipeline'))(
       {
         input: Object.merge(Object.clone(conn), {table: 'vhosts'}),
-        output: Object.merge(Object.clone(conn), {table: 'checks'}),
+        output: Object.merge(Object.clone(conn), {table: 'educativa'}),
         // filters: Array.clone(periodical_stats_filters),
         // type: 'minute'
       }
     ),
-    
-    require(path.join(process.cwd(), 'apps/vhosts/pipeline'))(http_os, conn),
+
+    require(path.join(process.cwd(), 'apps/educativa/alerts/vhosts/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'educativa'}),
+        output: Object.merge(Object.clone(conn), {table: 'educativa'}),
+        // filters: Array.clone(periodical_stats_filters),
+        // type: 'minute'
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/notify/alerts/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'educativa'}),
+        output: telegram,
+        // filters: Array.clone(periodical_stats_filters),
+        // type: 'minute'
+      }
+    ),
+
+
 
     // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL, conn),
     require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
