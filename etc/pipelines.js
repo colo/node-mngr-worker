@@ -7,6 +7,7 @@ const frontail = require('./default.frontail')
 const http_os = require('./http.os')
 const munin = require('./munin')
 const telegram = require('./telegram')
+const avoid_notify = require('./avoid_notify')
 
 const periodical_stats_filters = [
   require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
@@ -53,10 +54,22 @@ module.exports = [
       }
     ),
 
+    require(path.join(process.cwd(), 'apps/educativa/purge/all/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'educativa'}),
+        output: Object.merge(Object.clone(conn), {table: 'educativa'}),
+        filters: Array.clone([
+          require(path.join(process.cwd(), 'apps/educativa/purge/filters/00_from_default_query_delete_until_last_hour')),
+        ]),
+        type: 'check'
+      }
+    ),
+
     require(path.join(process.cwd(), 'apps/notify/alerts/pipeline'))(
       {
         input: Object.merge(Object.clone(conn), {table: 'educativa'}),
         output: telegram,
+        avoid_notify: avoid_notify.educativa
         // filters: Array.clone(periodical_stats_filters),
         // type: 'minute'
       }
@@ -64,15 +77,15 @@ module.exports = [
 
 
 
+    require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
+
     // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(frontail, SITE_URL, conn),
     require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
       path.join(process.cwd(), 'file_path'),
       SITE_URL,
       conn
     ),
-
-    require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
-
+    
     require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
 
     require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(

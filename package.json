@@ -27,6 +27,7 @@
     "node-cron": "^1.2.1",
     "node-express-app": "git+https://github.com/colo/node-express-app.git",
     "supports-color": "^5.1.0",
+    "telegraf": "^3.32.0",
     "usage": "^0.7.1",
     "zipson": "^0.2.9"
   }
