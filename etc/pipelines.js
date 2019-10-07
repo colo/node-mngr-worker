@@ -8,6 +8,7 @@ const http_os = require('./http.os')
 const munin = require('./munin')
 const telegram = require('./telegram')
 const avoid_notify = require('./avoid_notify')
+const http_ui = require('./http.ui')
 
 const periodical_stats_filters = [
   require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
@@ -33,6 +34,8 @@ module.exports = [
     //require('./local/munin.js'),
 
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
+    require(path.join(process.cwd(), 'apps/ui/pipeline'))(http_ui),
+
 
     require(path.join(process.cwd(), 'apps/vhosts/pipeline'))(http_os, conn),
 
