@@ -21,6 +21,12 @@ const periodical_stats_filters_full_range = [
   require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
 ]
 
+const hour_stats_filters = [
+  require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_build_lasts')),
+  require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_hour_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
+]
+
 const hour_stats_filters_full_range = [
   require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
   require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_hour_historical_ranges')),
@@ -71,23 +77,26 @@ module.exports = [
 
 
 
-    // // require(path.join(process.cwd(), 'apps/ui/pipeline'))(http_ui),
-    // //
-    // require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
+    // require(path.join(process.cwd(), 'apps/ui/pipeline'))(http_ui),
     //
-    // require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
-    // //
-    // // // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
-    // // //   path.join(process.cwd(), 'devel/var/log/nginx/www.educativa.com-access.log'),
-    // // //   'www.educativa.com',
-    // // //   conn
-    // // // ),
-    // // //
-    // // //
+    require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
+
+    require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
+
+    require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
+      path.join(process.cwd(), 'devel/var/log/nginx/www.educativa.com-access.log'),
+      'www.educativa.com',
+      conn
+    ),
+
+
     /**
     * stats
     **/
 
+    /**
+    * live
+    **/
     require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
       {
         input: Object.merge(Object.clone(conn), {table: 'os'}),
@@ -98,32 +107,97 @@ module.exports = [
       }
     ),
 
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(periodical_stats_filters),
+        type: 'minute',
+        full_range: false
+      }
+    ),
 
-    // // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
-    // //   {
-    // //     input: Object.merge(Object.clone(conn), {table: 'logs'}),
-    // //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    // //     filters: Array.clone(periodical_stats_filters_full_range),
-    // //     type: 'minute',
-    // //     full_range: true
-    // //   }
-    // // ),
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'logs'}),
+        output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+        filters: Array.clone(periodical_stats_filters),
+        type: 'minute',
+        full_range: false
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(hour_stats_filters),
+        type: 'hour',
+        full_range: false
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(hour_stats_filters),
+        type: 'hour',
+        full_range: false
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+        filters: Array.clone(hour_stats_filters),
+        type: 'hour',
+        full_range: false
+      }
+    ),
+
+    /**
+    * full range
+    **/
+    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+    //     filters: Array.clone(periodical_stats_filters_full_range),
+    //     type: 'minute',
+    //     full_range: true
+    //   }
+    // ),
+    //
     //
     // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {table: 'munin'}),
     //     output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
     //     filters: Array.clone(periodical_stats_filters_full_range),
-    //     type: 'minute'
+    //     type: 'minute',
+    //     full_range: true
     //   }
     // ),
-    //
+
+    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'logs'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+    //     filters: Array.clone(periodical_stats_filters_full_range),
+    //     type: 'minute',
+    //     full_range: true
+    //   }
+    // ),
+
     // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
     //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
     //     filters: Array.clone(hour_stats_filters_full_range),
-    //     type: 'hour'
+    //     type: 'hour',
+    //     full_range: true
     //   }
     // ),
     //
@@ -132,39 +206,40 @@ module.exports = [
     //     input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
     //     output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
     //     filters: Array.clone(hour_stats_filters_full_range),
-    //     type: 'hour'
+    //     type: 'hour',
+    //     full_range: true
     //   }
     // ),
     //
-    // // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
-    // //   {
-    // //     input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    // //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    // //     filters: Array.clone(hour_stats_filters_full_range),
-    // //     type: 'hour',
-    // //     full_range: true
-    // //   }
-    // // ),
+    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+    //     filters: Array.clone(hour_stats_filters_full_range),
+    //     type: 'hour',
+    //     full_range: true
+    //   }
+    // ),
 
     /**
     * Purge - periodicals
     **/
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     filters: Array.clone(periodical_purge_filters),
-    //     type: 'periodical'
-    //   }
-    // ),
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'munin'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'munin'}),
-    //     filters: Array.clone(periodical_purge_filters),
-    //     type: 'periodical'
-    //   }
-    // ),
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'os'}),
+        output: Object.merge(Object.clone(conn), {table: 'os'}),
+        filters: Array.clone(periodical_purge_filters),
+        type: 'periodical'
+      }
+    ),
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin'}),
+        filters: Array.clone(periodical_purge_filters),
+        type: 'periodical'
+      }
+    ),
     // // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
     // //   {
     // //     input: Object.merge(Object.clone(conn), {table: 'logs'}),
@@ -178,24 +253,24 @@ module.exports = [
     * Purge - minute
     **/
 
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     filters: Array.clone(minute_purge_filters),
-    //     type: 'minute'
-    //   }
-    // ),
-    //
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
-    //     filters: Array.clone(minute_purge_filters),
-    //     type: 'minute'
-    //   }
-    // ),
-    //
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(minute_purge_filters),
+        type: 'minute'
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(minute_purge_filters),
+        type: 'minute'
+      }
+    ),
+
     // // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
     // //   {
     // //     input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
