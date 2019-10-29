@@ -56,6 +56,10 @@ module.exports = function(doc, opts, next, pipeline){//sanitize + metadata
 	debug_internals('sanitize + metadata filter %o', doc);
 	debug_internals('sanitize + metadata filter->next %o', next);
 
-	//return doc;
+	/**
+	* removes any null || undefined
+	**/
+	doc = JSON.parse(JSON.stringify(doc))
+
 	next(doc, opts, next, pipeline);
 }
