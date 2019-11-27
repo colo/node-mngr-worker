@@ -125,7 +125,7 @@ module.exports = [
     ),
 
     /**
-    * replaced with stat-changes (bettwr performance)
+    * replaced with stat-changes (better performance)
     *
     require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
       {
@@ -167,6 +167,10 @@ module.exports = [
       }
     ),
 
+    /**
+    *
+    * replaced with stat-changes (better performance)
+    *
     require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
       {
         input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
@@ -174,6 +178,15 @@ module.exports = [
         filters: Array.clone(hour_stats_filters),
         type: 'hour',
         full_range: false
+      }
+    ),
+    **/
+    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(periodical_stats_filters_changes),
+        type: 'hour',
       }
     ),
 
