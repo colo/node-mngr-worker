@@ -15,6 +15,12 @@ const periodical_stats_filters = [
   require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
 ]
 
+const periodical_stats_filters_changes = [
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
+  // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_create_stats'))
+]
+
 const periodical_stats_filters_full_range = [
   require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
   require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_minute_historical_ranges')),
@@ -118,6 +124,9 @@ module.exports = [
       }
     ),
 
+    /**
+    * replaced with stat-changes (bettwr performance)
+    *
     require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
       {
         input: Object.merge(Object.clone(conn), {table: 'munin'}),
@@ -125,6 +134,16 @@ module.exports = [
         filters: Array.clone(periodical_stats_filters),
         type: 'minute',
         full_range: false
+      }
+    ),
+    **/
+
+    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'munin'}),
+        output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+        filters: Array.clone(periodical_stats_filters_changes),
+        type: 'minute',
       }
     ),
 
