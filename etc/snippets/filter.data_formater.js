@@ -135,7 +135,7 @@ const data_formater = function(data, format, require_path, cb){
 
 const __transform_data = function(type, data_path, data, cache_key, require_path, cb){
   debug_internals('__transform_data', type, data_path, data, require_path)
-
+  // process.exit(1)
   let convert = (type == 'stat') ? data_to_stat : data_to_tabular
 
   let transformed = {}
@@ -385,7 +385,7 @@ const __transform_data = function(type, data_path, data, cache_key, require_path
 
             // debug_internals('transform default tabular', path)
 
-            let chart = Object.clone(require(process.cwd()+'/apps/os/libs/'+type)(d, path))
+            let chart = Object.clone(require(require_path+'/'+type)(d, path))
 
             let _wrap_convert = function(chart_instance){
               convert(d, chart_instance, path, function(name, stat){
@@ -469,7 +469,9 @@ const __transform_data = function(type, data_path, data, cache_key, require_path
             }
           }
           else{//default transform for "stat"
-            require(process.cwd()+'/apps/os/libs/'+type)(d, path, function(name, stat){
+            require(require_path+'/'+type)(d, path, function(name, stat){
+              // debug_internals('transform default', d, path, name , stat)
+              // process.exit(1)
               transformed[type] = __merge_transformed(name, stat, transformed[type])
               // name = name.replace(/\./g, '_')
               // let to_merge = {}
@@ -478,6 +480,7 @@ const __transform_data = function(type, data_path, data, cache_key, require_path
               // transformed = Object.merge(transformed, to_merge)
 
               // debug_internals('transform default', d, path)
+              // process.exit(1)
 
               if(counter == Object.getLength(data) - 1 && typeof cb == 'function')
                 cb(transformed)
