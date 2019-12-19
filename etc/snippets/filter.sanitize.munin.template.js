@@ -32,7 +32,7 @@ module.exports = function(doc, opts, next, pipeline){//sanitize.munin + metadata
 	let metadata = {
 		id: input.options.id,
 		host: input_type.options.id,
-		// version: input_type.options.version,
+		version: input_type.options.version,
 		path: (doc.id) ? 'munin.'+doc.id : 'munin',
 		type: type,
 		timestamp: timestamp
