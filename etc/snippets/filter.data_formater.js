@@ -73,7 +73,7 @@ const data_formater = function(data, format, require_path, cb){
         key = (value[0] && value[0].metadata && value[0].metadata.path) ? value[0].metadata.path : key
         let stat = {}
         stat['data'] = value
-        __transform_data('stat', '', stat, undefined, require_path, function(value){
+        __transform_data('stat', key, stat, undefined, require_path, function(value){
           // transformed[key] = (value && value.stat) ? value.stat : undefined
           transformed[key] = (value && value.stat && value.stat.data) ? value.stat.data : undefined
           callback()
@@ -99,7 +99,7 @@ const data_formater = function(data, format, require_path, cb){
               // stat['data'] = value
 
               // __transform_data('tabular', 'data', value.data, id, function(value){
-              __transform_data('tabular', 'data', value, undefined, require_path, function(value){
+              __transform_data('tabular', key, value, undefined, require_path, function(value){
                 debug_internals(': __transform_data tabular -> %o', value) //result
                 transformed[key] = value
                 callback()
@@ -577,25 +577,49 @@ const deep_object_merge = function(obj1, obj2){
   return merged
 }
 
+let traversed_path_require = {}
+
 const __traverse_path_require = function(type, require_path, path, stat, original_path){
   original_path = original_path || path
   path = path.replace(/_/g, '.')
   original_path = original_path.replace(/_/g, '.')
 
-  debug_internals('__traverse_path_require %s', require_path+'/'+type+'/'+path)
 
-  try{
-    let chart = require(require_path+'/'+type+'/'+path)(stat, original_path)
-
-    return chart
+  if(traversed_path_require[require_path+'/'+type+'/'+path] && traversed_path_require[require_path+'/'+type+'/'+path] !== undefined){
+    return traversed_path_require[require_path+'/'+type+'/'+path]
   }
-  catch(e){
+  else if(traversed_path_require[require_path+'/'+type+'/'+path] === undefined){
     if(path.indexOf('.') > -1){
       let pre_path = path.substring(0, path.lastIndexOf('.'))
-      return __traverse_path_require(type, require_path, pre_path, stat, original_path)
+      if(traversed_path_require[require_path+'/'+type+'/'+pre_path] !== undefined){
+        let chart = __traverse_path_require(type, pre_path, stat, original_path)
+        traversed_path_require[require_path+'/'+type+'/'+pre_path] = chart
+        return chart
+      }
+    }
+    return undefined
+  }
+  else{
+
+    debug_internals('__traverse_path_require %s',  require_path+'/'+type+'/'+path)
+
+    try{
+      let chart = require(require_path+'/'+type+'/'+path)(stat, original_path)
+      traversed_path_require[require_path+'/'+type+'/'+path] = chart
+      return chart
+    }
+    catch(e){
+      traversed_path_require[require_path+'/'+type+'/'+path] = undefined
+      if(path.indexOf('.') > -1){
+        let pre_path = path.substring(0, path.lastIndexOf('.'))
+        let chart = __traverse_path_require(type, require_path, pre_path, stat, original_path)
+        traversed_path_require[require_path+'/'+type+'/'+pre_path] = chart
+        return chart
+      }
+
+      return undefined
     }
 
-    return undefined
   }
 
 
