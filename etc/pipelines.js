@@ -54,6 +54,28 @@ const minute_purge_filters = [
 ]
 
 module.exports = [
+  require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    {
+      input: Object.merge(Object.clone(conn), {
+        db: 'rethinkdb',
+        table: 'stats',
+        register: {
+          req : {
+            query: {
+              "filter": [
+            		"r.row('id').eq(['server', '6e7e0e21-0468-4946-accd-315aa92aa70b'])"
+            	],
+            }
+          }
+        }
+      }),
+      output: Object.merge(Object.clone(conn), {table: 'os'}),
+      filters: Array.clone([require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_rethinkdb'))]),
+      type: 'second',
+      // format: 'tabular'
+      // full_range: false
+    }
+  ),
 
   /**
   * OS
