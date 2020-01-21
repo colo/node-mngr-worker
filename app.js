@@ -6,33 +6,33 @@ const App =  process.env.NODE_ENV === 'production'
       ? require('./config/prod.conf')
       : require('./config/dev.conf');
 
-const InputPollerConf =  process.env.NODE_ENV === 'production'
-      ? require('./config/poller/prod.conf')
-      : require('./config/poller/dev.conf');
-
-const PollHttpConf =  process.env.NODE_ENV === 'production'
-      ? require('./config/poll/http/prod.conf')
-      : require('./config/poll/http/dev.conf');
-
-
-const InputPusherConf =  process.env.NODE_ENV === 'production'
-      ? require('./config/pusher/prod.conf')
-      : require('./config/pusher/dev.conf');
-
-const PushHttpConf =  process.env.NODE_ENV === 'production'
-      ? require('./config/push/http/prod.conf')
-      : require('./config/push/http/dev.conf');
-
-
-const OutputCradleConf =  process.env.NODE_ENV === 'production'
-      ? require('./config/output/cradle/prod.conf')
-      : require('./config/output/cradle/dev.conf');
+// const InputPollerConf =  process.env.NODE_ENV === 'production'
+//       ? require('./config/poller/prod.conf')
+//       : require('./config/poller/dev.conf');
+//
+// const PollHttpConf =  process.env.NODE_ENV === 'production'
+//       ? require('./config/poll/http/prod.conf')
+//       : require('./config/poll/http/dev.conf');
+//
+//
+// const InputPusherConf =  process.env.NODE_ENV === 'production'
+//       ? require('./config/pusher/prod.conf')
+//       : require('./config/pusher/dev.conf');
+//
+// const PushHttpConf =  process.env.NODE_ENV === 'production'
+//       ? require('./config/push/http/prod.conf')
+//       : require('./config/push/http/dev.conf');
+//
+//
+// const OutputCradleConf =  process.env.NODE_ENV === 'production'
+//       ? require('./config/output/cradle/prod.conf')
+//       : require('./config/output/cradle/dev.conf');
 
 const Pipeline = require('js-pipeline');
 
-var debug = require('debug')('Server:App'),
+const debug = require('debug')('Server:App'),
     debug_internals = require('debug')('Server:App:Internals'),
-    debug_events = require('debug')('Server:App:Events');
+    debug_events = require('debug')('Server:App:Events')
 
 process.on('uncaughtException', (err) => {
 
@@ -146,104 +146,63 @@ var Server = new Class({
 
 		if(this.options.pipelines)
 			Array.each(this.options.pipelines, function(pipe, index){
-				//const pipe_vm = new NodeVM({
-					//sandbox: {
-						//Pipeline: Pipeline,
-						//pipe: pipe
-					//},
-					////nesting: true,
-					////require: true,
-					//require: {
-							//external: true,
-							//builtin: '*',
-							////root: "./",
-							////import: [Pipeline]
-					//}
-				//});
-
-				////var pipe_script = null;
-				//////pipe_script.compile();
-
-				////try {
-					////pipe_script = new VMScript("new Pipeline(pipe)").compile();
-					//////console.log(pipe_script);
-				////}
-				////catch (err) {
-						//////console.error('Failed to compile script.', err);
-				////}
-
-				//try {
-					//let running_pipe = pipe_vm.run("module.exports = new Pipeline(pipe)");
-					////let functionInSandbox = pipe_vm.run("module.exports = new Pipeline(pipe)");
-					////try{
-						////functionInSandbox();
-					////}
-					////catch (e){}
-					////let running_pipe = pipe_vm.run(pipe_script);
-					//this.pipelines.push(running_pipe);
-				//}
-				//catch (err) {
-					////console.error('Failed to execute script.', err);
-				//}
-
-
 				/**
 				 * Merge general configs
 				 * */
-				if(pipe['input']){
-					Array.each(pipe['input'], function(input){
-						let type = Object.keys(input)[0];
-						switch (type){
-							case 'poll':
-								input[type] = Object.merge(Object.clone(InputPollerConf), input[type]);
-								if(input[type]['conn'] && input[type]['conn']['scheme'] == 'http'){
-									Array.each(input[type]['conn'], function(conn, index){
-										input[type]['conn'][index] = Object.merge(Object.clone(PollHttpConf), conn);
-										////console.log(input[type]['conn'][index]);
-									});
-								}
-								break;
-
-							case 'push':
-								input[type] = Object.merge(Object.clone(InputPusherConf), input[type]);
-								if(input[type]['conn'] && input[type]['conn']['scheme'] == 'http'){
-									Array.each(input[type]['conn'], function(conn, index){
-										input[type]['conn'][index] = Object.merge(Object.clone(PushHttpConf), conn);
-										////console.log(input[type]['conn'][index]);
-									});
-								}
-								break;
-
-							default:
-								throw new Error('Input ['+type+'] not implemented');
-						}
-					});
-
-				}
-
-				if(pipe['output']){
-					Array.each(pipe['output'], function(output){
-						let type = Object.keys(output)[0];
-						switch (type){
-							case 'cradle':
-								output[type] = Object.merge(Object.clone(OutputCradleConf), output[type]);
-								//if(output[type]['conn']){
-									//Array.each(output[type]['conn'], function(conn, index){
-										//output[type]['conn'][index] = Object.merge(OutputCradleConf, conn);
-										//////console.log(input[type]['conn'][index]);
-									//});
-								//}
-								break;
-
-							default:
-								//throw new Error('Output ['+type+'] not implemented');
-						}
-					});
-				}
-
-				////console.log(pipe['output'][0]['cradle']);
-				////console.log(PollHttpConf);
-				//throw new Error();
+				// if(pipe['input']){
+				// 	Array.each(pipe['input'], function(input){
+				// 		let type = Object.keys(input)[0];
+				// 		switch (type){
+				// 			case 'poll':
+				// 				input[type] = Object.merge(Object.clone(InputPollerConf), input[type]);
+				// 				if(input[type]['conn'] && input[type]['conn']['scheme'] == 'http'){
+				// 					Array.each(input[type]['conn'], function(conn, index){
+				// 						input[type]['conn'][index] = Object.merge(Object.clone(PollHttpConf), conn);
+				// 						////console.log(input[type]['conn'][index]);
+				// 					});
+				// 				}
+				// 				break;
+        //
+				// 			case 'push':
+				// 				input[type] = Object.merge(Object.clone(InputPusherConf), input[type]);
+				// 				if(input[type]['conn'] && input[type]['conn']['scheme'] == 'http'){
+				// 					Array.each(input[type]['conn'], function(conn, index){
+				// 						input[type]['conn'][index] = Object.merge(Object.clone(PushHttpConf), conn);
+				// 						////console.log(input[type]['conn'][index]);
+				// 					});
+				// 				}
+				// 				break;
+        //
+				// 			default:
+				// 				throw new Error('Input ['+type+'] not implemented');
+				// 		}
+				// 	});
+        //
+				// }
+        //
+				// if(pipe['output']){
+				// 	Array.each(pipe['output'], function(output){
+				// 		let type = Object.keys(output)[0];
+				// 		switch (type){
+				// 			case 'cradle':
+				// 				output[type] = Object.merge(Object.clone(OutputCradleConf), output[type]);
+				// 				//if(output[type]['conn']){
+				// 					//Array.each(output[type]['conn'], function(conn, index){
+				// 						//output[type]['conn'][index] = Object.merge(OutputCradleConf, conn);
+				// 						//////console.log(input[type]['conn'][index]);
+				// 					//});
+				// 				//}
+				// 				break;
+        //
+				// 			default:
+				// 				//throw new Error('Output ['+type+'] not implemented');
+				// 		}
+				// 	});
+				// }
+        //
+				// ////console.log(pipe['output'][0]['cradle']);
+				// ////console.log(PollHttpConf);
+				// //throw new Error();
 				/**
 				 * Merge general configs
 				 * */

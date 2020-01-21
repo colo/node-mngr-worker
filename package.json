@@ -10,28 +10,15 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "async": "^3.1.0",
     "body-parser": "^1.15.2",
     "cors": "^2.8.0",
     "debug": "^3.1.0",
     "express-session": "^1.15.6",
     "helmet": "^3.9.0",
     "js-pipeline": "git+https://github.com/colo/js-pipeline.git",
-    "memorystore": "^1.6.0",
-    "mngr-ui-admin-charts": "git+https://github.com/colo/mngr-ui-admin-charts.git",
     "mootools": "^1.5.2",
-    "multer": "^1.2.0",
-    "node-app-cradle-client": "git+https://github.com/colo/node-app-cradle-client.git",
-    "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
-    "node-app-imap-client": "git+https://github.com/colo/node-app-imap-client.git",
-    "node-app-rethinkdb-client": "git+https://github.com/colo/node-app-rethinkdb-client.git",
     "node-cron": "^1.2.1",
     "node-express-app": "git+https://github.com/colo/node-express-app.git",
-    "node-mngr-docs": "git+https://github.com/colo/node-mngr-docs.git",
-    "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git",
-    "supports-color": "^5.1.0",
-    "telegraf": "^3.32.0",
-    "usage": "^0.7.1",
-    "zipson": "^0.2.9"
+    "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git"
   }
 }

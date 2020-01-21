@@ -60,6 +60,25 @@ const minute_purge_filters = [
 ]
 
 module.exports = [
+
+    /**
+    * BrainJS
+    **/
+    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'ml'}),
+    //     filters: Array.clone(periodical_training_filters_changes),
+    //     type: 'minute',
+    //   }
+    // ),
+
+
+    /**
+    * OS
+    **/
+    // require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
+
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {
@@ -84,20 +103,6 @@ module.exports = [
     //     // full_range: false
     //   }
     // ),
-
-
-    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-      {
-        input: Object.merge(Object.clone(conn), {table: 'os'}),
-        output: Object.merge(Object.clone(conn), {table: 'ml'}),
-        filters: Array.clone(periodical_training_filters_changes),
-        type: 'minute',
-      }
-    ),
-    /**
-    * OS
-    **/
-    // require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
 
     // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
     //   {
@@ -167,7 +172,7 @@ module.exports = [
     **/
 
     // require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
-
+    //
     // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {table: 'munin'}),
