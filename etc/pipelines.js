@@ -64,14 +64,36 @@ module.exports = [
     /**
     * BrainJS
     **/
-    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'ml'}),
-    //     filters: Array.clone(periodical_training_filters_changes),
-    //     type: 'minute',
-    //   }
-    // ),
+    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+      {
+        input: Object.merge(
+          Object.clone(conn),
+          {
+            table: 'os',
+            type: 'minute',
+            full_range: false,
+            requests: {
+              req : {
+                'id': 'changes',
+                'index': false,
+                'filter': [
+                  { 'metadata': { 'host': 'elk' } },
+                  "this.r.row('metadata')('path').eq('os.cpus')" +
+                  ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.time'))" +
+                  ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.sectors'))" +
+                  ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.written_docs'))" +
+                  ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.read_docs'))"
+                ]
+              }
+            }
+          }
+        ),
+        output: Object.merge(Object.clone(conn), {table: 'ml'}),
+        filters: Array.clone(periodical_training_filters_changes),
+
+
+      }//
+    ),
 
 
     /**
@@ -84,8 +106,11 @@ module.exports = [
     //     input: Object.merge(Object.clone(conn), {
     //       db: 'rethinkdb',
     //       table: 'stats',
-    //       register: {
+    //       // format: 'tabular'
+    //       full_range: false,
+    //       requests: {
     //         req : {
+    //           'id': 'changes',
     //           query: {
     //             "filter": [
     //           		// "r.row('id').eq(['server', '6e7e0e21-0468-4946-accd-315aa92aa70b'])"
@@ -98,9 +123,6 @@ module.exports = [
     //     }),
     //     output: Object.merge(Object.clone(conn), {table: 'os'}),
     //     filters: Array.clone([require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_rethinkdb'))]),
-    //     type: 'second',
-    //     // format: 'tabular'
-    //     // full_range: false
     //   }
     // ),
 
@@ -131,7 +153,7 @@ module.exports = [
     //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
     //     filters: Array.clone(periodical_data_format_filters_changes),
     //     type: 'inmediate',
-    //     format: 'tabular'
+    //     opts: { format: 'tabular' }
     //     // full_range: false
     //   }
     // ),
@@ -150,20 +172,43 @@ module.exports = [
     **/
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
+    //     input: Object.merge(
+    //       Object.clone(conn), {
+    //         table: 'os',
+    //         type: 'minute',
+    //         // full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'changes',
+    //           }
+    //         }
+    //
+    //       }
+    //     ),
     //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
     //     filters: Array.clone(periodical_stats_filters_changes),
-    //     type: 'minute',
+    //
     //   }
     // ),
     //
     //
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+    //     input: Object.merge(
+    //       Object.clone(conn), {
+    //         table: 'os_historical',
+    //         type: 'hour',
+    //         // full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'changes',
+    //           }
+    //         }
+    //       }
+    //     ),
     //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
     //     filters: Array.clone(periodical_stats_filters_changes),
-    //     type: 'hour',
+    //
     //   }
     // ),
 
@@ -198,7 +243,19 @@ module.exports = [
 
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'munin'}),
+    //     input: Object.merge(
+    //       Object.clone(conn), {
+    //         table: 'munin',
+    //         type: 'minute',
+    //         // full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'changes',
+    //           }
+    //         }
+    //
+    //       }
+    //     ),
     //     output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
     //     filters: Array.clone(periodical_stats_filters_changes),
     //     type: 'minute',
@@ -208,7 +265,19 @@ module.exports = [
     //
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
+    //     input: Object.merge(
+    //       Object.clone(conn), {
+    //         table: 'munin',
+    //         type: 'minute',
+    //         // full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'changes',
+    //           }
+    //         }
+    //
+    //       }
+    //     ),
     //     output: Object.merge(Object.clone(conn), {table: 'munin_historical'}),
     //     filters: Array.clone(periodical_stats_filters_changes),
     //     type: 'hour',
