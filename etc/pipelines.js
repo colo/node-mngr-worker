@@ -15,9 +15,9 @@ const periodical_training_filters_changes = [
 ]
 
 const periodical_stats_filters = [
-  require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_build_lasts')),
-  require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_minute_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
 
 const periodical_stats_filters_changes = [
@@ -34,21 +34,21 @@ const periodical_data_format_filters_changes = [
 
 
 const periodical_stats_filters_full_range = [
-  require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
-  require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_minute_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_get_lasts')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
 
 const hour_stats_filters = [
-  require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_build_lasts')),
-  require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_hour_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_hour_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
 
 const hour_stats_filters_full_range = [
-  require(path.join(process.cwd(), 'apps/stat/filters/00_from_default_query_get_lasts')),
-  require(path.join(process.cwd(), 'apps/stat/filters/01_from_lasts_get_hour_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stat/filters/02_from_ranges_create_stats'))
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_get_lasts')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_hour_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
 
 const periodical_purge_filters = [
@@ -64,36 +64,36 @@ module.exports = [
     /**
     * BrainJS
     **/
-    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-      {
-        input: Object.merge(
-          Object.clone(conn),
-          {
-            table: 'os',
-            type: 'minute',
-            full_range: false,
-            requests: {
-              req : {
-                'id': 'changes',
-                'index': false,
-                'filter': [
-                  { 'metadata': { 'host': 'elk' } },
-                  "this.r.row('metadata')('path').eq('os.cpus')" +
-                  ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.time'))" +
-                  ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.sectors'))" +
-                  ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.written_docs'))" +
-                  ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.read_docs'))"
-                ]
-              }
-            }
-          }
-        ),
-        output: Object.merge(Object.clone(conn), {table: 'ml'}),
-        filters: Array.clone(periodical_training_filters_changes),
-
-
-      }//
-    ),
+    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(
+    //       Object.clone(conn),
+    //       {
+    //         table: 'os',
+    //         type: 'minute',
+    //         full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'changes',
+    //             'index': false,
+    //             'filter': [
+    //               { 'metadata': { 'host': 'elk' } },
+    //               "this.r.row('metadata')('path').eq('os.cpus')" +
+    //               ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.time'))" +
+    //               ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.sectors'))" +
+    //               ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.written_docs'))" +
+    //               ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.read_docs'))"
+    //             ]
+    //           }
+    //         }
+    //       }
+    //     ),
+    //     output: Object.merge(Object.clone(conn), {table: 'ml'}),
+    //     filters: Array.clone(periodical_training_filters_changes),
+    //
+    //
+    //   }//
+    // ),
 
 
     /**
@@ -101,6 +101,9 @@ module.exports = [
     **/
     // require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
 
+    /**
+    * OS Rethinkdb stats
+    **/
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {
@@ -126,23 +129,26 @@ module.exports = [
     //   }
     // ),
 
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     filters: Array.clone(periodical_purge_filters),
-    //     type: 'periodical'
-    //   }
-    // ),
-    //
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     filters: Array.clone(minute_purge_filters),
-    //     type: 'minute'
-    //   }
-    // ),
+    /**
+    * OS Purge
+    **/
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'os'}),
+        output: Object.merge(Object.clone(conn), {table: 'os'}),
+        filters: Array.clone(periodical_purge_filters),
+        type: 'periodical'
+      }
+    ),
+
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(minute_purge_filters),
+        type: 'minute'
+      }
+    ),
 
     /**
     * OS tabular
