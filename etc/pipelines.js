@@ -105,48 +105,48 @@ module.exports = [
     /**
     * Carrot
     **/
-    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-      {
-        input: Object.merge(
-          Object.clone(conn),
-          {
-            table: 'os',
-            type: 'hour',
-            full_range: false,
-            requests: {
-              req : {
-                'id': 'periodical',
-                'index': false,
-                query: {
-                  'q': [
-                    'data',
-                    { 'metadata': ['path', 'timestamp', 'host'] }
-                  ],
-                  'transformation': [
-                    {
-                      'orderBy': { 'index': 'r.desc(timestamp)' }
-                    }
-                  ],
-                  'filter': [
-                    { 'metadata': { 'host': 'elk' } },
-                    "this.r.row('metadata')('path').eq('os.cpus')" +
-                    ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.time'))" +
-                    ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.sectors'))" +
-                    ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.written_docs'))" +
-                    ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.read_docs'))"
-                  ]
-                }
-
-              }
-            }
-          }
-        ),
-        output: Object.merge(Object.clone(conn), {table: 'ml'}),
-        filters: Array.clone(periodical_training_filters_carrot),
-
-
-      }//
-    ),
+    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(
+    //       Object.clone(conn),
+    //       {
+    //         table: 'os',
+    //         type: 'hour',
+    //         full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'periodical',
+    //             'index': false,
+    //             query: {
+    //               'q': [
+    //                 'data',
+    //                 { 'metadata': ['path', 'timestamp', 'host'] }
+    //               ],
+    //               'transformation': [
+    //                 {
+    //                   'orderBy': { 'index': 'r.desc(timestamp)' }
+    //                 }
+    //               ],
+    //               'filter': [
+    //                 { 'metadata': { 'host': 'elk' } },
+    //                 "this.r.row('metadata')('path').eq('os.cpus')" +
+    //                 ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.time'))" +
+    //                 ".or(this.r.row('metadata')('path').eq('os.blockdevices.vda3.sectors'))" +
+    //                 ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.written_docs'))" +
+    //                 ".or(this.r.row('metadata')('path').eq('os.rethinkdb.server.read_docs'))"
+    //               ]
+    //             }
+    //
+    //           }
+    //         }
+    //       }
+    //     ),
+    //     output: Object.merge(Object.clone(conn), {table: 'ml'}),
+    //     filters: Array.clone(periodical_training_filters_carrot),
+    //
+    //
+    //   }//
+    // ),
 
     /**
     * OS
@@ -169,7 +169,8 @@ module.exports = [
     //           query: {
     //             "filter": [
     //           		// "r.row('id').eq(['server', '6e7e0e21-0468-4946-accd-315aa92aa70b'])"
-    //               "r.row('id').eq(['server', '770b0fde-0b50-46b3-abd5-59eb71822c89'])"
+    //               // "r.row('id').eq(['server', 'a8235e33-42cb-41ab-ab30-683640810d86'])"
+    //               "r.row('server').eq('elk')"
     //
     //           	],
     //           }
@@ -178,50 +179,6 @@ module.exports = [
     //     }),
     //     output: Object.merge(Object.clone(conn), {table: 'os'}),
     //     filters: Array.clone([require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_rethinkdb'))]),
-    //   }
-    // ),
-
-    /**
-    * OS Purge
-    **/
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     filters: Array.clone(periodical_purge_filters),
-    //     type: 'periodical'
-    //   }
-    // ),
-    //
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
-    //     filters: Array.clone(minute_purge_filters),
-    //     type: 'minute'
-    //   }
-    // ),
-
-    /**
-    * OS tabular
-    **/
-    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
-    //     filters: Array.clone(periodical_data_format_filters_changes),
-    //     type: 'inmediate',
-    //     opts: { format: 'tabular' }
-    //     // full_range: false
-    //   }
-    // ),
-    //
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
-    //     filters: Array.clone(periodical_purge_filters),
-    //     type: 'periodical'
     //   }
     // ),
 
@@ -269,6 +226,52 @@ module.exports = [
     //
     //   }
     // ),
+
+    /**
+    * OS Purge
+    **/
+    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'os'}),
+    //     filters: Array.clone(periodical_purge_filters),
+    //     type: 'periodical'
+    //   }
+    // ),
+    //
+    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+    //     filters: Array.clone(minute_purge_filters),
+    //     type: 'minute'
+    //   }
+    // ),
+
+    /**
+    * OS tabular
+    **/
+    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
+    //     filters: Array.clone(periodical_data_format_filters_changes),
+    //     type: 'inmediate',
+    //     opts: { format: 'tabular' }
+    //     // full_range: false
+    //   }
+    // ),
+    //
+    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
+    //     filters: Array.clone(periodical_purge_filters),
+    //     type: 'periodical'
+    //   }
+    // ),
+
+
 
     /**
     * Munin
