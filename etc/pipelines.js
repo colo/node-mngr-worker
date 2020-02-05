@@ -152,7 +152,8 @@ module.exports = [
     * OS
     **/
     // require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
-
+    // require(path.join(process.cwd(), 'apps/os/pipeline'))(Object.merge(Object.clone(http_os), { host: 'elk' }), conn),
+    //
     /**
     * OS Rethinkdb stats
     **/
@@ -169,8 +170,8 @@ module.exports = [
     //           query: {
     //             "filter": [
     //           		// "r.row('id').eq(['server', '6e7e0e21-0468-4946-accd-315aa92aa70b'])"
-    //               // "r.row('id').eq(['server', 'a8235e33-42cb-41ab-ab30-683640810d86'])"
-    //               "r.row('server').eq('elk')"
+    //               "r.row('id').eq(['server', '50ce6db5-22da-4bff-87ac-987e51a38b3f'])"
+    //               // "r.row('server').eq('elk_75k')"
     //
     //           	],
     //           }
