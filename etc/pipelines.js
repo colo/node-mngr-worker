@@ -435,6 +435,56 @@ module.exports = [
     //   conn
     // ),
 
+    /**
+    * Logs Stats (changes)
+    **/
+
+    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(
+    //       Object.clone(conn), {
+    //         table: 'logs',
+    //         type: 'minute',
+    //         // full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'changes',
+    //           }
+    //         }
+    //
+    //       }
+    //     ),
+    //     opts: { suspended: false },
+    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+    //     filters: Array.clone(periodical_stats_filters_changes),
+    //
+    //   }
+    // ),
+
+
+    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(
+    //       Object.clone(conn), {
+    //         table: 'logs_historical',
+    //         type: 'hour',
+    //         // full_range: false,
+    //         requests: {
+    //           req : {
+    //             'id': 'changes',
+    //           }
+    //         }
+    //       }
+    //     ),
+    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+    //     filters: Array.clone(periodical_stats_filters_changes),
+    //
+    //   }
+    // ),
+
+    /**
+    * Logs Stats (full_range)
+    **/
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
     //     input: Object.merge(
@@ -457,27 +507,32 @@ module.exports = [
     //   }
     // ),
 
-    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-      {
-        input: Object.merge(
-          Object.clone(conn), {
-            index: 'path',
-            table: 'logs_historical',
-            type: 'hour',
-            full_range: true,
-            requests: {
-              req : {
-                'id': 'once',
-              }
-            }
-
-          }
-        ),
-        output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-        filters: Array.clone(hour_stats_filters_full_range),
-
-      }
-    ),
+    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(
+    //       Object.clone(conn), {
+    //         index: 'path',
+    //         table: 'logs_historical',
+    //         type: 'hour',
+    //         full_range: true,
+    //         requests: {
+    //           req : {
+    //             'id': 'once',
+    //             // query: {
+    //             //   distinct: {
+    //             //     domains: "('metadata')('domain')"
+    //             //   }
+    //             // }
+    //           }
+    //         }
+    //
+    //       }
+    //     ),
+    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+    //     filters: Array.clone(hour_stats_filters_full_range),
+    //
+    //   }
+    // ),
 
 
     // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
