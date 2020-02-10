@@ -68,6 +68,186 @@ const minute_purge_filters = [
 
 module.exports = [
 
+  /**
+  * Logs
+  **/
+  // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
+  //   path.join(process.cwd(), 'devel/var/log/nginx/www.educativa.com-access.log'),
+  //   'www.educativa.com',
+  //   conn
+  // ),
+
+  /**
+  * Logs Stats (changes)
+  **/
+
+  // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(
+  //       Object.clone(conn), {
+  //         table: 'logs',
+  //         type: 'minute',
+  //         // full_range: false,
+  //         requests: {
+  //           req : {
+  //             'id': 'changes',
+  //           }
+  //         }
+  //
+  //       }
+  //     ),
+  //     opts: { suspended: false },
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(periodical_stats_filters_changes),
+  //
+  //   }
+  // ),
+
+
+  // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(
+  //       Object.clone(conn), {
+  //         table: 'logs_historical',
+  //         type: 'hour',
+  //         // full_range: false,
+  //         requests: {
+  //           req : {
+  //             'id': 'changes',
+  //           }
+  //         }
+  //       }
+  //     ),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(periodical_stats_filters_changes),
+  //
+  //   }
+  // ),
+
+  /**
+  * Logs Stats (full_range)
+  **/
+  // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(
+  //       Object.clone(conn), {
+  //         index: 'path',
+  //         table: 'logs',
+  //         type: 'minute',
+  //         full_range: true,
+  //         requests: {
+  //           req : {
+  //             'id': 'once',
+  //           }
+  //         }
+  //
+  //       }
+  //     ),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(periodical_stats_filters_full_range),
+  //
+  //   }
+  // ),
+
+  // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(
+  //       Object.clone(conn), {
+  //         index: 'path',
+  //         table: 'logs_historical',
+  //         type: 'hour',
+  //         full_range: true,
+  //         requests: {
+  //           req : {
+  //             'id': 'once',
+  //             // query: {
+  //             //   distinct: {
+  //             //     domains: "('metadata')('domain')"
+  //             //   }
+  //             // }
+  //           }
+  //         }
+  //
+  //       }
+  //     ),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(hour_stats_filters_full_range),
+  //
+  //   }
+  // ),
+
+  /**
+  * Logs Stats (periodical)
+  **/
+
+  // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(Object.clone(conn), {table: 'logs'}),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(periodical_stats_filters),
+  //     type: 'minute',
+  //     full_range: false
+  //   }
+  // ),
+  // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(hour_stats_filters),
+  //     type: 'hour',
+  //     full_range: false
+  //   }
+  // ),
+
+
+  /**
+  * Logs Purge - periodicals
+  **/
+
+  // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(
+  //       Object.clone(conn), {
+  //         table: 'logs',
+  //         type: 'periodical',
+  //         // // full_range: false,
+  //         // requests: {
+  //         //   req : {
+  //         //     'id': 'changes',
+  //         //   }
+  //         // }
+  //
+  //       }
+  //     ),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs'}),
+  //     filters: Array.clone(periodical_purge_filters),
+  //     // type: 'periodical'
+  //   }
+  // ),
+
+  /**
+  * Logs Purge - minute
+  **/
+  require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+    {
+      input: Object.merge(
+        Object.clone(conn), {
+          table: 'logs_historical',
+          type: 'minute',
+          // // full_range: false,
+          // requests: {
+          //   req : {
+          //     'id': 'changes',
+          //   }
+          // }
+
+        }
+      ),
+      output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+      filters: Array.clone(minute_purge_filters),
+      // type: 'minute'
+    }
+  ),
     /**
     * BrainJS
     **/
@@ -153,7 +333,7 @@ module.exports = [
     **/
     // require(path.join(process.cwd(), 'apps/os/pipeline'))(http_os, conn),
     // require(path.join(process.cwd(), 'apps/os/pipeline'))(Object.merge(Object.clone(http_os), { host: 'elk' }), conn),
-
+    //
     /**
     * OS Rethinkdb stats
     **/
@@ -162,7 +342,6 @@ module.exports = [
     //     input: Object.merge(Object.clone(conn), {
     //       db: 'rethinkdb',
     //       table: 'stats',
-    //       type: 'inmediate',
     //       // format: 'tabular'
     //       full_range: false,
     //       requests: {
@@ -171,8 +350,8 @@ module.exports = [
     //           query: {
     //             "filter": [
     //           		// "r.row('id').eq(['server', '6e7e0e21-0468-4946-accd-315aa92aa70b'])"
-    //               "r.row('id').eq(['server', 'a8235e33-42cb-41ab-ab30-683640810d86'])"
-    //               // "r.row('server').eq('elk')"
+    //               "r.row('id').eq(['server', '50ce6db5-22da-4bff-87ac-987e51a38b3f'])"
+    //               // "r.row('server').eq('elk_75k')"
     //
     //           	],
     //           }
@@ -208,7 +387,7 @@ module.exports = [
     //   }
     // ),
     //
-
+    //
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
     //     input: Object.merge(
@@ -395,6 +574,11 @@ module.exports = [
     // require(path.join(process.cwd(), 'apps/ui/pipeline'))(http_ui),
 
 
+
+
+
+
+
     /**
     * stats
     **/
@@ -426,135 +610,9 @@ module.exports = [
     ),
     **/
 
-    /**
-    * Logs
-    **/
-    // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
-    //   path.join(process.cwd(), 'devel/var/log/nginx/www.educativa.com-access.log'),
-    //   'www.educativa.com',
-    //   conn
-    // ),
 
-    /**
-    * Logs Stats (changes)
-    **/
 
-    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(
-    //       Object.clone(conn), {
-    //         table: 'logs',
-    //         type: 'minute',
-    //         // full_range: false,
-    //         requests: {
-    //           req : {
-    //             'id': 'changes',
-    //           }
-    //         }
     //
-    //       }
-    //     ),
-    //     opts: { suspended: false },
-    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     filters: Array.clone(periodical_stats_filters_changes),
-    //
-    //   }
-    // ),
-
-
-    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(
-    //       Object.clone(conn), {
-    //         table: 'logs_historical',
-    //         type: 'hour',
-    //         // full_range: false,
-    //         requests: {
-    //           req : {
-    //             'id': 'changes',
-    //           }
-    //         }
-    //       }
-    //     ),
-    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     filters: Array.clone(periodical_stats_filters_changes),
-    //
-    //   }
-    // ),
-
-    /**
-    * Logs Stats (full_range)
-    **/
-    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(
-    //       Object.clone(conn), {
-    //         index: 'path',
-    //         table: 'logs',
-    //         type: 'minute',
-    //         full_range: true,
-    //         requests: {
-    //           req : {
-    //             'id': 'once',
-    //           }
-    //         }
-    //
-    //       }
-    //     ),
-    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     filters: Array.clone(periodical_stats_filters_full_range),
-    //
-    //   }
-    // ),
-
-    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(
-    //       Object.clone(conn), {
-    //         index: 'path',
-    //         table: 'logs_historical',
-    //         type: 'hour',
-    //         full_range: true,
-    //         requests: {
-    //           req : {
-    //             'id': 'once',
-    //             // query: {
-    //             //   distinct: {
-    //             //     domains: "('metadata')('domain')"
-    //             //   }
-    //             // }
-    //           }
-    //         }
-    //
-    //       }
-    //     ),
-    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     filters: Array.clone(hour_stats_filters_full_range),
-    //
-    //   }
-    // ),
-
-
-    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'logs'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     filters: Array.clone(periodical_stats_filters),
-    //     type: 'minute',
-    //     full_range: false
-    //   }
-    // ),
-    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    //     filters: Array.clone(hour_stats_filters),
-    //     type: 'hour',
-    //     full_range: false
-    //   }
-    // ),
-
-
     // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
@@ -574,6 +632,8 @@ module.exports = [
     //     full_range: false
     //   }
     // ),
+
+
 
 
     /**
@@ -600,8 +660,6 @@ module.exports = [
     //   }
     // ),
 
-
-
     // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
@@ -621,33 +679,9 @@ module.exports = [
     //     full_range: true
     //   }
     // ),
+    //
 
 
-
-    /**
-    * Purge - periodicals
-    **/
-
-    // // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    // //   {
-    // //     input: Object.merge(Object.clone(conn), {table: 'logs'}),
-    // //     output: Object.merge(Object.clone(conn), {table: 'logs'}),
-    // //     filters: Array.clone(periodical_purge_filters),
-    // //     type: 'periodical'
-    // //   }
-    // // ),
-
-    /**
-    * Purge - minute
-    **/
-    // // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    // //   {
-    // //     input: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    // //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-    // //     filters: Array.clone(minute_purge_filters),
-    // //     type: 'minute'
-    // //   }
-    // // ),
 
     /**require(path.join(process.cwd(), 'apps/ui/pipeline'))(conn),
 
