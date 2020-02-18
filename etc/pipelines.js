@@ -66,11 +66,15 @@ const minute_purge_filters = [
   require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_day')),
 ]
 
-module.exports = [
+
+
+let pipelines = [
 
   /**
   * Logs
   **/
+
+
   // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
   //   path.join(process.cwd(), 'devel/var/log/nginx/www.educativa.com-access.log'),
   //   'www.educativa.com',
@@ -228,26 +232,26 @@ module.exports = [
   /**
   * Logs Purge - minute
   **/
-  require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    {
-      input: Object.merge(
-        Object.clone(conn), {
-          table: 'logs_historical',
-          type: 'minute',
-          // // full_range: false,
-          // requests: {
-          //   req : {
-          //     'id': 'changes',
-          //   }
-          // }
-
-        }
-      ),
-      output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-      filters: Array.clone(minute_purge_filters),
-      // type: 'minute'
-    }
-  ),
+  // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(
+  //       Object.clone(conn), {
+  //         table: 'logs_historical',
+  //         type: 'minute',
+  //         // // full_range: false,
+  //         // requests: {
+  //         //   req : {
+  //         //     'id': 'changes',
+  //         //   }
+  //         // }
+  //
+  //       }
+  //     ),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(minute_purge_filters),
+  //     // type: 'minute'
+  //   }
+  // ),
     /**
     * BrainJS
     **/
@@ -695,3 +699,41 @@ module.exports = [
 
     // require(path.join(process.cwd(), 'apps/os/alerts/pipeline')),
 ]
+
+/**
+* load all access log from dir (production)
+**/
+
+const glob = require('glob')
+const os = require('os')
+// const DIR = path.join(process.cwd(), 'devel/var/log/nginx/')
+const DIR = '/var/log/nginx/'
+
+const files = glob.sync('*access.log', {
+  'cwd': DIR
+})
+
+// console.log(files)
+// process.exit(1)
+
+Array.each(files, function(file){
+  /**
+  * Logs
+  **/
+
+  let domain = file.replace('access.log', '')
+  domain = domain.replace('-', '')
+  domain = (domain === '') ? os.hostname() : domain
+  // console.log(domain)
+  // process.exit(1)
+
+  pipelines.push(
+    require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
+      path.join(DIR, file),
+      domain,
+      conn
+    )
+  )
+})
+
+module.exports = pipelines
