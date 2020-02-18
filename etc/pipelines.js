@@ -721,8 +721,8 @@ Array.each(files, function(file){
   * Logs
   **/
 
-  let domain = file.replace('access.log', '')
-  domain = domain.replace('-', '')
+  let domain = file.replace('-access.log', '')
+  domain = domain.replace('access.log', '')
   domain = (domain === '') ? os.hostname() : domain
   // console.log(domain)
   // process.exit(1)
