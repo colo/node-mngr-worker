@@ -9,46 +9,65 @@ const munin = require('./munin')
 const telegram = require('./telegram')
 const http_ui = require('./http.ui')
 
-const periodical_training_filters_carrot = [
-  // require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
-  // require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
-  // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_hour_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_train-carrot'))
-]
+/**
+* data format
+**/
+// const periodical_data_format_filters_changes = [
+//   require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
+//   // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
+//   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_data_format'))
+// ]
 
-const periodical_training_filters_changes = [
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_train-written_docs-os_stats'))
-]
+/**
+* ML tests
+**/
+// const periodical_training_filters_carrot = [
+//   // require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
+//   // require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
+//   // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_hour_historical_ranges')),
+//   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_train-carrot'))
+// ]
+//
+// const periodical_training_filters_changes = [
+//   require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
+//   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_train-written_docs-os_stats'))
+// ]
 
-const periodical_stats_filters = [
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
-]
 
+/**
+* stat - changes
+**/
 const periodical_stats_filters_changes = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
   // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_create_stats'))
 ]
 
-const periodical_data_format_filters_changes = [
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
-  // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_data_format'))
-]
 
-
-const periodical_stats_filters_full_range = [
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_get_lasts')),
+/**
+* stat
+**/
+const periodical_stats_filters = [
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
-
 const hour_stats_filters = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_hour_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
+]
+const day_stats_filters = [
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_build_lasts')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_day_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
+]
+/**
+* stat - full range
+**/
+const periodical_stats_filters_full_range = [
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_get_lasts')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
 
@@ -58,6 +77,15 @@ const hour_stats_filters_full_range = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
 
+const day_stats_filters_full_range = [
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_default_query_get_lasts')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_day_historical_ranges')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
+]
+
+/**
+* purge
+**/
 const periodical_purge_filters = [
   require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_hour')),
 ]
@@ -66,15 +94,11 @@ const minute_purge_filters = [
   require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_day')),
 ]
 
-
-
 let pipelines = [
 
   /**
   * Logs
   **/
-
-
   // require(path.join(process.cwd(), 'apps/logs/nginx/pipeline'))(
   //   path.join(process.cwd(), 'devel/var/log/nginx/www.educativa.com-access.log'),
   //   'www.educativa.com',
@@ -176,6 +200,33 @@ let pipelines = [
   //     ),
   //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
   //     filters: Array.clone(hour_stats_filters_full_range),
+  //
+  //   }
+  // ),
+
+  // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+  //   {
+  //     input: Object.merge(
+  //       Object.clone(conn), {
+  //         index: 'path',
+  //         table: 'logs_historical',
+  //         type: 'day',
+  //         full_range: true,
+  //         requests: {
+  //           req : {
+  //             'id': 'once',
+  //             // query: {
+  //             //   distinct: {
+  //             //     domains: "('metadata')('domain')"
+  //             //   }
+  //             // }
+  //           }
+  //         }
+  //
+  //       }
+  //     ),
+  //     output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
+  //     filters: Array.clone(day_stats_filters_full_range),
   //
   //   }
   // ),
@@ -368,7 +419,7 @@ let pipelines = [
     // ),
 
     /**
-    * OS Stats
+    * OS Stats (changes)
     **/
     // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
     //   {
@@ -409,6 +460,46 @@ let pipelines = [
     //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
     //     filters: Array.clone(periodical_stats_filters_changes),
     //
+    //   }
+    // ),
+
+    /**
+    * OS Stats
+    **/
+    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+      {
+        input: Object.merge(
+          Object.clone(conn), {
+            table: 'os_historical',
+            type: 'day',
+            full_range: false,
+            requests: {
+              req : {
+                // index: false,
+                'id': 'paths',
+              }
+            }
+          }
+        ),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(day_stats_filters),
+
+      }
+      // {
+      //   input: Object.merge(Object.clone(conn), {table: 'os'}),
+      //   output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+      //   filters: Array.clone(periodical_stats_filters),
+      //   type: 'day',
+      //   full_range: false
+      // }
+    ),
+    // require(path.join(process.cwd(), 'apps/stat/periodical/pipeline'))(
+    //   {
+    //     input: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+    //     output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+    //     filters: Array.clone(hour_stats_filters),
+    //     type: 'hour',
+    //     full_range: false
     //   }
     // ),
 
@@ -534,6 +625,8 @@ let pipelines = [
     //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
 
     // require(path.join(process.cwd(), 'apps/vhosts/pipeline'))(http_os, conn),
+    // require(path.join(process.cwd(), 'apps/vhosts/pipeline'))(Object.merge(Object.clone(http_os), { host: 'elk' }), conn),
+    //
 
     // require(path.join(process.cwd(), 'apps/educativa/checks/vhosts/pipeline'))(
     //   {
