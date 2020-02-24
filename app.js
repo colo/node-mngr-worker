@@ -6,6 +6,8 @@ const App =  process.env.NODE_ENV === 'production'
       ? require('./config/prod.conf')
       : require('./config/dev.conf');
 
+const path = require('path')
+
 // const InputPollerConf =  process.env.NODE_ENV === 'production'
 //       ? require('./config/poller/prod.conf')
 //       : require('./config/poller/dev.conf');
@@ -221,7 +223,33 @@ var Server = new Class({
 
 });
 
-var server = new Server();
+let optionator = require('optionator')({
+    prepend: 'Usage: cmd [options]',
+    append: 'Version: '+process.env.npm_package_version,
+    options: [{
+        option: 'help',
+        alias: 'h',
+        type: 'Boolean',
+        description: 'displays help'
+    }, {
+        option: 'pipelines',
+        alias: 'P',
+        type: 'String',
+        description: 'Pipelines file',
+        example: 'cmd --pipelines etc/pipelines.js'
+    }]
+})
+
+let options = optionator.parseArgv(process.argv);
+if (options.help) {
+  console.log(optionator.generateHelp())
+  process.exit(0)
+}
+if(options.pipelines){
+  options.pipelines = require(path.join(process.cwd(), options.pipelines))
+}
+
+let server = new Server(options);
 
 //root.load(path.join(__dirname, '/apps'));
 

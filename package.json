@@ -20,6 +20,7 @@
     "mootools": "^1.5.2",
     "node-cron": "^1.2.1",
     "node-express-app": "git+https://github.com/colo/node-express-app.git",
-    "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git"
+    "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git",
+    "optionator": "^0.8.3"
   }
 }
