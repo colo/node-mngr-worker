@@ -13,6 +13,14 @@ const minute_purge_filters = [
   require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_day')),
 ]
 
+const hour_purge_filters = [
+  require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_week')),
+]
+
+const day_purge_filters = [
+  require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_month')),
+]
+
 let pipelines = [
 
 
@@ -61,6 +69,54 @@ let pipelines = [
         ),
         output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
         filters: Array.clone(minute_purge_filters),
+        // type: 'minute'
+      }
+    ),
+
+    /**
+    * OS Purge - hour
+    **/
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(
+          Object.clone(conn), {
+            table: 'os_historical',
+            type: 'hour',
+            // // full_range: false,
+            // requests: {
+            //   req : {
+            //     'id': 'changes',
+            //   }
+            // }
+
+          }
+        ),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(hour_purge_filters),
+        // type: 'minute'
+      }
+    ),
+
+    /**
+    * OS Purge - day
+    **/
+    require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+      {
+        input: Object.merge(
+          Object.clone(conn), {
+            table: 'os_historical',
+            type: 'day',
+            // // full_range: false,
+            // requests: {
+            //   req : {
+            //     'id': 'changes',
+            //   }
+            // }
+
+          }
+        ),
+        output: Object.merge(Object.clone(conn), {table: 'os_historical'}),
+        filters: Array.clone(day_purge_filters),
         // type: 'minute'
       }
     ),

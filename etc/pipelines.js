@@ -97,70 +97,6 @@ const minute_purge_filters = [
 let pipelines = [
 
 
-
-
-
-
-    /**
-    * OS tabular
-    **/
-    // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
-    //     filters: Array.clone(periodical_data_format_filters_changes),
-    //     type: 'inmediate',
-    //     opts: { format: 'tabular' }
-    //     // full_range: false
-    //   }
-    // ),
-    //
-    // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
-    //     filters: Array.clone(periodical_purge_filters),
-    //     type: 'periodical'
-    //   }
-    // ),
-
-
-
-    //require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
-
-    // require(path.join(process.cwd(), 'apps/vhosts/pipeline'))(http_os, conn),
-    // require(path.join(process.cwd(), 'apps/vhosts/pipeline'))(Object.merge(Object.clone(http_os), { host: 'elk' }), conn),
-    //
-
-    // require(path.join(process.cwd(), 'apps/educativa/checks/vhosts/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'vhosts'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'educativa'}),
-    //     // filters: Array.clone(periodical_stats_filters_full_range),
-    //     // type: 'minute'
-    //   }
-    // ),
-
-    // require(path.join(process.cwd(), 'apps/educativa/alerts/vhosts/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'educativa'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'educativa'}),
-    //     // filters: Array.clone(periodical_stats_filters_full_range),
-    //     // type: 'minute'
-    //   }
-    // ),
-    //
-    // require(path.join(process.cwd(), 'apps/educativa/purge/all/pipeline'))(
-    //   {
-    //     input: Object.merge(Object.clone(conn), {table: 'educativa'}),
-    //     output: Object.merge(Object.clone(conn), {table: 'educativa'}),
-    //     // filters: Array.clone([
-    //     //   require(path.join(process.cwd(), 'apps/educativa/purge/filters/00_from_default_query_delete_until_last_hour')),
-    //     // ]),
-    //     // type: 'check'
-    //   }
-    // ),
-
     // require(path.join(process.cwd(), 'apps/notify/alerts/pipeline'))(
     //   {
     //     input: Object.merge(Object.clone(conn), {table: 'educativa'}),
@@ -258,6 +194,33 @@ let pipelines = [
     //
     //   }//
     // ),
+
+
+        /**
+        * OS tabular
+        **/
+        // require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+        //   {
+        //     input: Object.merge(Object.clone(conn), {table: 'os'}),
+        //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
+        //     filters: Array.clone(periodical_data_format_filters_changes),
+        //     type: 'inmediate',
+        //     opts: { format: 'tabular' }
+        //     // full_range: false
+        //   }
+        // ),
+        //
+        // require(path.join(process.cwd(), 'apps/purge/periodical/pipeline'))(
+        //   {
+        //     input: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
+        //     output: Object.merge(Object.clone(conn), {table: 'os_tabular'}),
+        //     filters: Array.clone(periodical_purge_filters),
+        //     type: 'periodical'
+        //   }
+        // ),
+
+
+
 
 ]
 

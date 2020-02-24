@@ -10,12 +10,15 @@ let pipelines = [
   // require(path.join(process.cwd(), 'apps/logs/web/pipeline'))(
   //   {
   //     input: {
-  //       file: path.join(process.cwd(), 'devel/var/log/nginx/www.educativa.com-access.log'),
+  //       file: path.join(process.cwd(), 'devel/var/log/apache2/www.educativa.com-access.log'),
   //       domain: 'www.educativa.com',
   //     },
   //     output: conn,
   //     opts: {
-  //       type: 'nginx'
+  //       type: 'apache2',
+  //       schema: '$remote_addr - $remote_user [$time_local] '
+  //           + '"$request" $status $body_bytes_sent '
+  //           + '"$http_user_agent" "$http_x_forwarded_for"'
   //     }
   //   }
   // ),
@@ -30,8 +33,8 @@ let pipelines = [
 
 const glob = require('glob')
 const os = require('os')
-const DIR = path.join(process.cwd(), 'devel/var/log/nginx/')
-// const DIR = '/var/log/nginx/'
+const DIR = path.join(process.cwd(), 'devel/var/log/apache2/')
+// const DIR = '/var/log/apache2/'
 
 const files = glob.sync('*access.log', {
   'cwd': DIR
@@ -55,7 +58,10 @@ Array.each(files, function(file){
         },
         output: conn,
         opts: {
-          type: 'nginx'
+          type: 'apache2',
+          schema: '$remote_addr - $remote_user [$time_local] '
+              + '"$request" $status $body_bytes_sent '
+              + '"$http_user_agent" "$http_x_forwarded_for"'
         }
       }
 
