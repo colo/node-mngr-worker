@@ -11,6 +11,7 @@ let pipelines = [
   //   {
   //     input: {
   //       file: path.join(process.cwd(), 'devel/var/log/apache2/www.educativa.com-access.log'),
+  //       stdin: true,
   //       domain: 'www.educativa.com',
   //     },
   //     output: conn,
@@ -33,8 +34,8 @@ let pipelines = [
 
 const glob = require('glob')
 const os = require('os')
-const DIR = path.join(process.cwd(), 'devel/var/log/apache2/')
-// const DIR = '/var/log/apache2/'
+// const DIR = path.join(process.cwd(), 'devel/var/log/apache2/')
+const DIR = '/var/log/apache2/'
 
 const files = glob.sync('*access.log', {
   'cwd': DIR
@@ -54,6 +55,7 @@ Array.each(files, function(file){
       {
         input: {
           file: path.join(DIR, file),
+          stdin: false,
           domain: domain
         },
         output: conn,

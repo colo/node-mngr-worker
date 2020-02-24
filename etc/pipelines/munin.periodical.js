@@ -9,8 +9,8 @@ let pipelines = [
     /**
     * Munin
     **/
-    require(path.join(process.cwd(), 'apps/os/pipeline'))(munin, conn),
-    // require(path.join(process.cwd(), 'apps/os/pipeline'))(Object.merge(Object.clone(http_os), { host: 'elk' }), conn),
+    require(path.join(process.cwd(), 'apps/munin/pipeline'))(munin, conn),
+    // require(path.join(process.cwd(), 'apps/munin/pipeline'))(Object.merge(Object.clone(munin), { host: 'elk' }), conn),
     //
 
 ]
