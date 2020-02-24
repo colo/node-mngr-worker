@@ -1,6 +1,6 @@
 const path = require('path')
 
-const conn = require('./default.conn')()
+const conn = require('../default.conn')()
 
 /**
 * stat - changes
