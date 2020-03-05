@@ -34,20 +34,35 @@ let pipelines = [
           Object.clone(conn), {
             table: 'logs',
             type: 'periodical',
-            // // full_range: false,
-            // requests: {
-            //   req : {
-            //     'id': 'changes',
-            //   }
-            // }
-
+            full_range: true,
+            requests: {
+              req : {
+                query: {
+                  'q': [
+                    {'metadata': ['timestamp', 'type']},
+                  ],
+                  'transformation': [
+                    {
+                      'orderBy': { 'index': 'r.asc(timestamp)' }
+                    },
+                    { 'limit': 1 }
+                  ],
+                  'filter': [
+                    "r.row('metadata')('type').eq('periodical')"
+                  ]
+                },
+                'id': 'periodical',
+              }
+            }
           }
         ),
         output: Object.merge(Object.clone(conn), {table: 'logs'}),
         filters: Array.clone(periodical_purge_filters),
-        // type: 'periodical'
+
       }
+
     ),
+
 
     /**
     * OS Purge - minute
@@ -58,20 +73,35 @@ let pipelines = [
           Object.clone(conn), {
             table: 'logs_historical',
             type: 'minute',
-            // // full_range: false,
-            // requests: {
-            //   req : {
-            //     'id': 'changes',
-            //   }
-            // }
-
+            full_range: true,
+            requests: {
+              req : {
+                query: {
+                  'q': [
+                    {'metadata': ['timestamp', 'type']},
+                  ],
+                  'transformation': [
+                    {
+                      'orderBy': { 'index': 'r.asc(timestamp)' }
+                    },
+                    { 'limit': 1 }
+                  ],
+                  'filter': [
+                    "r.row('metadata')('type').eq('minute')"
+                  ]
+                },
+                'id': 'periodical',
+              }
+            }
           }
         ),
         output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
         filters: Array.clone(minute_purge_filters),
-        // type: 'minute'
+
       }
+
     ),
+
 
     /**
     * OS Purge - hour
@@ -82,20 +112,35 @@ let pipelines = [
           Object.clone(conn), {
             table: 'logs_historical',
             type: 'hour',
-            // // full_range: false,
-            // requests: {
-            //   req : {
-            //     'id': 'changes',
-            //   }
-            // }
-
+            full_range: true,
+            requests: {
+              req : {
+                query: {
+                  'q': [
+                    {'metadata': ['timestamp', 'type']},
+                  ],
+                  'transformation': [
+                    {
+                      'orderBy': { 'index': 'r.asc(timestamp)' }
+                    },
+                    { 'limit': 1 }
+                  ],
+                  'filter': [
+                    "r.row('metadata')('type').eq('hour')"
+                  ]
+                },
+                'id': 'periodical',
+              }
+            }
           }
         ),
         output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
         filters: Array.clone(hour_purge_filters),
-        // type: 'minute'
+
       }
+
     ),
+
 
     /**
     * OS Purge - day
@@ -106,20 +151,35 @@ let pipelines = [
           Object.clone(conn), {
             table: 'logs_historical',
             type: 'day',
-            // // full_range: false,
-            // requests: {
-            //   req : {
-            //     'id': 'changes',
-            //   }
-            // }
-
+            full_range: true,
+            requests: {
+              req : {
+                query: {
+                  'q': [
+                    {'metadata': ['timestamp', 'type']},
+                  ],
+                  'transformation': [
+                    {
+                      'orderBy': { 'index': 'r.asc(timestamp)' }
+                    },
+                    { 'limit': 1 }
+                  ],
+                  'filter': [
+                    "r.row('metadata')('type').eq('day')"
+                  ]
+                },
+                'id': 'periodical',
+              }
+            }
           }
         ),
         output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
         filters: Array.clone(day_purge_filters),
-        // type: 'minute'
+
       }
+
     ),
+
 
 ]
 
