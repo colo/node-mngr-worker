@@ -5,7 +5,7 @@ const bbb_conn = require('../bbb.conn.js')()
 
 
 let pipelines = [
-    require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn),
+    require(path.join(process.cwd(), 'apps/bbb/pipeline'))(bbb_conn, conn),
 ]
 
 
