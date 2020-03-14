@@ -14,6 +14,7 @@ let pipelines = [
           table: 'stats',
           // format: 'tabular'
           full_range: false,
+          // id: 'all',//optionally declare a server id for stats path (use full when quering multiple servers)
           requests: {
             req : {
               'id': 'changes',
