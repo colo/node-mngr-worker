@@ -21,8 +21,7 @@ let pipelines = [
               query: {
                 "filter": [
               		// "r.row('id').eq(['server', '6e7e0e21-0468-4946-accd-315aa92aa70b'])"
-                  "r.row('id').eq(['server', '50ce6db5-22da-4bff-87ac-987e51a38b3f'])"
-                  // "r.row('server').eq('elk_75k')"
+                  "this.r.row.hasFields('db').not().and(this.r.row('server').eq('elk'))"
 
               	],
               }

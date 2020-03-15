@@ -30,8 +30,7 @@ let pipelines = [
                   ],
                   "filter": [
                 		// "r.row('id').eq(['server', '6e7e0e21-0468-4946-accd-315aa92aa70b'])"
-                    "r.row('id').eq(['server', 'a8235e33-42cb-41ab-ab30-683640810d86'])"
-                    // "r.row('server').eq('elk_75k')"
+                    "this.r.row.hasFields('db').not().and(this.r.row('server').eq('elk'))"
 
                 	],
                 }
