@@ -34,10 +34,18 @@ module.exports = {
 	// 	sendImmediately: false,
 	// },
   authentication: {
+    init: true,
     users : [
-        { id: 1, username: 'anonymous' , role: 'anonymous', password: ''}
+        { id: 1, username: 'mngr' , role: 'mngr', password: '1234'}
     ],
   },
+
+  // authorization: {
+	// 	config: {
+	// 		"permissions":[],
+	// 	},
+	// },
+
 	// logs: {
 	// 	loggers: {
 	// 		error: null,
