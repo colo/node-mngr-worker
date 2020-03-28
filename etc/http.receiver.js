@@ -34,10 +34,18 @@ module.exports = {
 	// 	sendImmediately: false,
 	// },
   authentication: {
+    /** server **/
     init: true,
     users : [
         { id: 1, username: 'mngr' , role: 'mngr', password: '1234'}
     ],
+
+    /** client **/
+    username: 'mngr',
+  	password: '1234',
+  	sendImmediately: true,
+  	// bearer: 'bearer',
+  	basic: true
   },
 
   // authorization: {
