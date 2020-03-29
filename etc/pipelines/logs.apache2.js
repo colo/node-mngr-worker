@@ -2,6 +2,8 @@ const path = require('path')
 
 const conn = require('../default.conn')()
 
+const os = require('os')
+
 let pipelines = [
 
   /**
@@ -33,8 +35,8 @@ let pipelines = [
 **/
 
 const glob = require('glob')
-const os = require('os')
-// const DIR = path.join(process.cwd(), 'devel/var/log/apache2/')
+
+//const DIR = path.join(process.cwd(), 'devel/var/log/apache2/')
 const DIR = '/var/log/apache2/'
 
 const files = glob.sync('*access.log', {
@@ -61,6 +63,7 @@ Array.each(files, function(file){
         output: conn,
         opts: {
           type: 'apache2',
+          hostname: os.hostname(),
           schema: '$remote_addr - $remote_user [$time_local] '
               + '"$request" $status $body_bytes_sent '
               + '"$http_user_agent" "$http_x_forwarded_for"'

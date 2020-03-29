@@ -2,6 +2,8 @@ const path = require('path')
 
 const conn = require('../default.conn')()
 
+const os = require('os')
+
 let pipelines = [
 
   /**
@@ -16,7 +18,8 @@ let pipelines = [
   //     },
   //     output: conn,
   //     opts: {
-  //       type: 'nginx'
+  //       type: 'nginx',
+  //       hostname: os.hostname()
   //     }
   //   }
   // ),
@@ -30,8 +33,7 @@ let pipelines = [
 **/
 
 const glob = require('glob')
-const os = require('os')
-// const DIR = path.join(process.cwd(), 'devel/var/log/nginx/')
+//const DIR = path.join(process.cwd(), 'devel/var/log/nginx/')
 const DIR = '/var/log/nginx/'
 
 const files = glob.sync('*access.log', {
@@ -57,7 +59,8 @@ Array.each(files, function(file){
         },
         output: conn,
         opts: {
-          type: 'nginx'
+          type: 'nginx',
+          hostname: os.hostname()
         }
       }
 
