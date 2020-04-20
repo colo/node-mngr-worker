@@ -38,6 +38,9 @@ let pipelines = [
 
         }
       ),
+      opts: {
+        group_index: 'metadata.domain'
+      },
       output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
       filters: Array.clone(day_stats_filters_full_range),
 
