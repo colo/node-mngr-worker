@@ -31,7 +31,8 @@ let pipelines = [
               query: {
                 // 'filter': [ { 'metadata': { 'path': 'logs.educativa' } } ]
                 'filter': [
-                  "this.r.row('metadata').hasFields('domain')"
+                  // "this.r.row('metadata').hasFields('domain')"
+                  "this.r.row('metadata').hasFields('domain').and(this.r.row('metadata')('path').eq('logs.educativa'))"
                 ]
               }
             }
