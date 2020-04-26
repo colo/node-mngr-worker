@@ -28,6 +28,12 @@ let pipelines = [
           requests: {
             req : {
               'id': 'once',
+              query: {
+                // 'filter': [ { 'metadata': { 'path': 'logs.educativa' } } ]
+                'filter': [
+                  "this.r.row('metadata')('host').ne('*')"
+                ]
+              }
             }
           }
 

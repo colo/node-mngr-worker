@@ -28,6 +28,12 @@ let pipelines = [
               //   index: 'path',
               // },
               'id': 'periodical',
+              query: {
+                // 'filter': [ { 'metadata': { 'path': 'logs.educativa' } } ]
+                'filter': [
+                  "this.r.row('metadata')('host').ne('*')"
+                ]
+              }
             }
           }
         }
