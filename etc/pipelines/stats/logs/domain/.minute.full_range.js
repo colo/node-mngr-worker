@@ -1,11 +1,11 @@
 const path = require('path')
 
-// const conn = require('../../../../default.conn')()
-const conn = require('../../../../servers/carina.conn')()
+const conn = require('../../../../default.conn')()
+// const conn = require('../../../../servers/carina.conn')()
 
-const stats_filters = [
-  require(path.join(process.cwd(), 'apps/stats/filters/00_from_periodical_get_range')),
-  // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
+const minute_stats_filters = [
+  // require(path.join(process.cwd(), 'apps/stats/filters/00_from_periodical_get_range')),
+  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stats/filters/02_from_ranges_create_stats'))
 ]
 
@@ -24,10 +24,10 @@ let pipelines = [
           module: require(path.join(process.cwd(), 'apps/stats/input/rethinkdb')),
           table: 'logs',
           type: 'minute',
-          // full_range: false,
+          full_range: true,
           // requests: {
-          periodical: {
-            'id': 'periodical',
+          once: {
+            'id': 'once',
             query: {
               'index': 'domain',
               'q': [
@@ -47,7 +47,7 @@ let pipelines = [
         group_index: 'metadata.domain'
       },
       output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-      filters: Array.clone(stats_filters),
+      filters: Array.clone(minute_stats_filters),
 
     }
 

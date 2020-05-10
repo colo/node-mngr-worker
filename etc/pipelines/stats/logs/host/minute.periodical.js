@@ -1,8 +1,9 @@
 const path = require('path')
 
-const conn = require('../../../../default.conn')()
+// const conn = require('../../../../default.conn')()
+const conn = require('../../../../servers/carina.conn')()
 
-const minute_stats_filters = [
+const stats_filters = [
   require(path.join(process.cwd(), 'apps/stats/filters/00_from_periodical_get_range')),
   // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stats/filters/02_from_ranges_create_stats'))
@@ -46,7 +47,7 @@ let pipelines = [
         group_index: 'metadata.host'
       },
       output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-      filters: Array.clone(minute_stats_filters),
+      filters: Array.clone(stats_filters),
 
     }
 
