@@ -1,15 +1,10 @@
 const path = require('path')
 
 const conn = require('../../../../default.conn')()
-
-
-/**
-* stat - changes
-**/
 const stats_filters = [
-  require(path.join(process.cwd(), 'apps/stats/filters/00_from_changes_build_buffer')),
+  require(path.join(process.cwd(), 'apps/stats/filters/00_from_periodical_get_range')),
   // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
-  require(path.join(process.cwd(), 'apps/stats/filters/02_from_buffer_create_stats'))
+  require(path.join(process.cwd(), 'apps/stats/filters/02_from_ranges_create_stats'))
 ]
 
 
@@ -27,22 +22,20 @@ let pipelines = [
           module: require(path.join(process.cwd(), 'apps/stats/input/rethinkdb')),
           table: 'logs_historical',
           type: 'day',
-          full_range: false,
+          // full_range: false,
           // requests: {
-          once: {
-            'id': 'changes',
+          periodical: {
+            'id': 'periodical',
             query: {
-              'register': 'changes',
-              'index': false,
+              'index': 'domain',
               'q': [
-                "data",
-                "metadata"
+                { 'metadata': ['domain', 'path'] } // 'path' ain't needed for first view (categories)
               ],
-              // 'aggregation': 'distinct',
+              'aggregation': 'distinct',
               'filter': [
+                // "this.r.row('metadata').hasFields('domain')"
                 "this.r.row('metadata').hasFields('tag').and(this.r.row('metadata')('tag').contains('domain').and( this.r.row('metadata')('path').eq('logs.educativa')))"
-              ],
-              opts: {includeTypes: true, squash: 1}//, maxBatchSeconds: 1
+              ]
             }
           }
           // }
