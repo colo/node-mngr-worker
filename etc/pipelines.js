@@ -37,16 +37,18 @@ const http_ui = require('./http.ui')
 /**
 * stat - changes
 **/
+/**
 const periodical_stats_filters_changes = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_changes_build_buffer')),
   // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_create_stats'))
 ]
-
+**/
 
 /**
 * stat
 **/
+/**
 const periodical_stats_filters = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_periodical_build_lasts')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
@@ -62,9 +64,11 @@ const day_stats_filters = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_day_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
+**/
 /**
 * stat - full range
 **/
+/**
 const periodical_stats_filters_full_range = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/00_from_once_get_lasts')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
@@ -82,10 +86,11 @@ const day_stats_filters_full_range = [
   require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_day_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_ranges_create_stats'))
 ]
-
+**/
 /**
 * purge
 **/
+/**
 const periodical_purge_filters = [
   require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_hour')),
 ]
@@ -93,7 +98,7 @@ const periodical_purge_filters = [
 const minute_purge_filters = [
   require(path.join(process.cwd(), 'apps/purge/filters/00_from_default_query_delete_until_last_day')),
 ]
-
+**/
 let pipelines = [
 
 
