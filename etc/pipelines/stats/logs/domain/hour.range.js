@@ -31,9 +31,11 @@ let pipelines = [
             'id': 'once_range',
             // Range: 1585969203107 +'-'+ Date.now()+ '/*',
             query: {
-              'index': 'domain',
+              // 'index': 'domain',
+              'index': 'path',
               'q': [
-                { 'metadata': ['domain', 'path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['domain', 'path'] } // 'path' ain't needed for first view (categories)
+                { 'metadata': ['path'] } // 'path' ain't needed for first view (categories)
               ],
               'aggregation': 'distinct',
               'filter': [

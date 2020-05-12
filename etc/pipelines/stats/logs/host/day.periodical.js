@@ -25,12 +25,15 @@ let pipelines = [
           type: 'day',
           full_range: false,
           // requests: {
+          range: {},
           periodical: {
             'id': 'periodical',
             query: {
-              'index': 'host',
+              // 'index': 'host',
+              'index': 'path',
               'q': [
-                { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
+                { 'metadata': ['path'] } // 'path' ain't needed for first view (categories)
               ],
               'aggregation': 'distinct',
               'filter': [
