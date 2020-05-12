@@ -26,14 +26,16 @@ let pipelines = [
           type: 'day',
           full_range: false,
           // requests: {
+          range: {},
           periodical: {
             'id': 'periodical',
             query: {
               'index': 'host',
               'q': [
                 { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
+                { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
               ],
-              // 'aggregation': 'distinct',
+              'aggregation': 'distinct',
               // 'filter': [
               //   // "this.r.row('metadata').hasFields('domain')"
               //   "this.r.row('metadata').hasFields('tag').and(this.r.row('metadata')('tag').contains('host').and( this.r.row('metadata')('path').eq('logs.educativa')))"
