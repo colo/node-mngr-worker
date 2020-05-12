@@ -3,9 +3,9 @@ const path = require('path')
 const conn = require('../../../../default.conn')()
 // const conn = require('../../../../servers/carina.conn')()
 
-const minute_stats_filters = [
-  // require(path.join(process.cwd(), 'apps/stats/filters/00_from_periodical_get_range')),
-  require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
+const stats_filters = [
+  require(path.join(process.cwd(), 'apps/stats/filters/00_from_periodical_get_range')),
+  // require(path.join(process.cwd(), 'apps/stat-changes/filters/01_from_lasts_get_minute_historical_ranges')),
   require(path.join(process.cwd(), 'apps/stats/filters/02_from_ranges_create_stats'))
 ]
 
@@ -22,12 +22,14 @@ let pipelines = [
       input: Object.merge(
         Object.clone(conn), {
           module: require(path.join(process.cwd(), 'apps/stats/input/rethinkdb')),
-          table: 'logs',
-          type: 'minute',
-          full_range: true,
+          table: 'logs_historical',
+          type: 'day',
+          // full_range: false,
           // requests: {
+          range: {},
           once: {
-            'id': 'once',
+            'id': 'once_range',
+            // Range: 1585969203107 +'-'+ Date.now()+ '/*',
             query: {
               'index': 'domain',
               'q': [
@@ -36,8 +38,14 @@ let pipelines = [
               'aggregation': 'distinct',
               'filter': [
                 // "this.r.row('metadata').hasFields('domain')"
-                "this.r.row('metadata').hasFields('domain').and(this.r.row('metadata')('path').eq('logs.educativa'))"
+                "this.r.row('metadata').hasFields('tag').and(this.r.row('metadata')('tag').contains('domain').and( this.r.row('metadata')('path').eq('logs.educativa')))"
               ]
+            },
+            opt: {
+              range:{
+                start: 1585969203107,
+                end: 1586055600972
+              }
             }
           }
           // }
@@ -47,7 +55,7 @@ let pipelines = [
         group_index: 'metadata.domain'
       },
       output: Object.merge(Object.clone(conn), {table: 'logs_historical'}),
-      filters: Array.clone(minute_stats_filters),
+      filters: Array.clone(stats_filters),
 
     }
 
