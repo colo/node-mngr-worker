@@ -7,22 +7,22 @@ let pipelines = [
     /**
     * OS Rethinkdb stats (periodical)
     **/
-    require(path.join(process.cwd(), 'apps/stat-changes/periodical/pipeline'))(
+    require(path.join(process.cwd(), 'apps/stats/pipeline'))(
       {
         input: Object.merge(
           Object.clone(conn), {
+            module: require(path.join(process.cwd(), 'apps/stats/input/rethinkdb')),
             db: 'rethinkdb',
             table: 'stats',
             // format: 'tabular'
-            full_range: true,
+            // full_range: true,
             type: 'second',
             // id: 'all',//optionally declare a server id for stats path (use full when quering multiple servers)
-            requests: {
-              req : {
+            once: {
                 'id': 'periodical',
                 query: {
-                  // index: false,
-                  // register: 'periodical',
+                  index: false,
+                  register: 'periodical',
                   q: [
                     "id",
                     "query_engine",
@@ -35,12 +35,11 @@ let pipelines = [
 
                 	],
                 }
-              }
             }
           }
         ),
         output: Object.merge(Object.clone(conn), {table: 'os'}),
-        filters: Array.clone([require(path.join(process.cwd(), 'apps/stat-changes/filters/02_from_buffer_rethinkdb'))]),
+        filters: Array.clone([require(path.join(process.cwd(), 'apps/stats/filters/02_from_buffer_rethinkdb'))]),
 
       }
 
