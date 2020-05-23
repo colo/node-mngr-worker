@@ -30,11 +30,11 @@ let pipelines = [
           periodical: {
             'id': 'periodical',
             query: {
-              'index': 'host',
-              // 'index': 'path',
+              'index': 'path',
               'q': [
-                // { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
-                { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
+                { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
               ],
               'aggregation': 'distinct',
               // 'filter': [

@@ -1,6 +1,7 @@
 const path = require('path')
 
-const conn = require('../../../default.conn')()
+// const conn = require('../../../default.conn')()
+const conn = require('../../../servers/carina.conn')()
 
 const stats_filters = [
   require(path.join(process.cwd(), 'apps/stats/filters/00_from_periodical_get_range')),
@@ -29,10 +30,11 @@ let pipelines = [
           periodical: {
             'id': 'periodical',
             query: {
-              'index': 'host',
+              'index': 'path',
               'q': [
-                // { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
-                { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
+                { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
               ],
               'aggregation': 'distinct',
               // 'filter': [

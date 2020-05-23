@@ -29,15 +29,16 @@ let pipelines = [
           periodical: {
             'id': 'periodical',
             query: {
-              'index': 'host',
+              'index': 'path',
               'q': [
-                // { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
-                { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
+                { 'metadata': ['host', 'path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['path'] } // 'path' ain't needed for first view (categories)
+                // { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
               ],
               'aggregation': 'distinct',
               // 'filter': [
               //   // "this.r.row('metadata').hasFields('domain')"
-              //   "this.r.row('metadata').hasFields('tag').and(this.r.row('metadata')('tag').contains('host').and( this.r.row('metadata')('path').eq('logs.educativa')))"
+              //   "this.r.row('metadata').hasFields('domain').and(this.r.row('metadata')('path').eq('logs.educativa'))"
               // ]
             }
           }
