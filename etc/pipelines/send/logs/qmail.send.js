@@ -1,7 +1,7 @@
 const path = require('path')
 
 const conn = require('../../../default.conn')()
-const http_receiver = require('../../qmail.receiver')
+const http_receiver = require('../../http.receiver')
 
 const os = require('os')
 

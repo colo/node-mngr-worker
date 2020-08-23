@@ -33,8 +33,8 @@ let pipelines = [
 **/
 
 const glob = require('glob')
-// const DIR = path.join(process.cwd(), 'devel/var/log/qmail/')
-const DIR = '/var/log/qmail/'
+const DIR = path.join(process.cwd(), 'devel/var/log/qmail/')
+// const DIR = '/var/log/qmail/'
 
 const files = glob.sync('current', {
   'cwd': DIR
