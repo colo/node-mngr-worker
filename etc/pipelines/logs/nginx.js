@@ -33,8 +33,8 @@ let pipelines = [
 **/
 
 const glob = require('glob')
-//const DIR = path.join(process.cwd(), 'devel/var/log/nginx/')
-const DIR = '/var/log/nginx/'
+const DIR = path.join(process.cwd(), 'devel/var/log/nginx/')
+// const DIR = '/var/log/nginx/'
 
 const files = glob.sync('*access.log', {
   'cwd': DIR

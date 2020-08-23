@@ -1,7 +1,6 @@
 const path = require('path')
 
-const conn = require('../../../default.conn')()
-const http_receiver = require('../../http.receiver')
+const conn = require('../../default.conn')()
 
 const os = require('os')
 
@@ -10,16 +9,16 @@ let pipelines = [
   /**
   * Logs
   **/
-  // require(path.join(process.cwd(), 'apps/logs/educativa/pipeline'))(
+  // require(path.join(process.cwd(), 'apps/logs/qmail/send/pipeline'))(
   //   {
   //     input: {
-  //       file: path.join(process.cwd(), 'devel/var/log/apache2/educativa/ID.log'),
-  //       stdin: true,
-  //       domain: 'ID',
+  //       file: path.join(process.cwd(), 'devel/var/log/qmail/current'),
+  //       stdin: false,
+  //       // domain: 'ID',
   //     },
   //     output: conn,
   //     opts: {
-  //       type: 'educativa',
+  //       type: 'qmail.send',
   //       hostname: os.hostname()
   //     }
   //   }
@@ -28,15 +27,16 @@ let pipelines = [
 
 ]
 
+
 /**
 * load all access log from dir (production)
 **/
 
 const glob = require('glob')
-const DIR = path.join(process.cwd(), 'devel/var/log/apache2/educativa/')
-// const DIR = '/var/log/apache2/educativa/'
+// const DIR = path.join(process.cwd(), 'devel/var/log/qmail/')
+const DIR = '/var/log/qmail/'
 
-const files = glob.sync('*.log', {
+const files = glob.sync('current', {
   'cwd': DIR
 })
 
@@ -45,21 +45,21 @@ Array.each(files, function(file){
   * Logs
   **/
 
-  let domain = file.replace('.log', '')
+  // let domain = file.replace('.log', '')
   // domain = domain.replace('access.log', '')
   // domain = (domain === '') ? os.hostname() : domain
 
   pipelines.push(
-    require(path.join(process.cwd(), 'apps/logs/educativa/pipeline-send-remote'))(
+    require(path.join(process.cwd(), 'apps/logs/qmail/send/pipeline'))(
       {
         input: {
           file: path.join(DIR, file),
           stdin: false,
-          domain: domain
+          // domain: domain
         },
         output: conn,
         opts: {
-          type: 'educativa',
+          type: 'qmail.send',
           hostname: os.hostname()
         }
       }

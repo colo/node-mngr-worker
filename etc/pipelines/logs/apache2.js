@@ -36,8 +36,8 @@ let pipelines = [
 
 const glob = require('glob')
 
-//const DIR = path.join(process.cwd(), 'devel/var/log/apache2/')
-const DIR = '/var/log/apache2/'
+const DIR = path.join(process.cwd(), 'devel/var/log/apache2/')
+// const DIR = '/var/log/apache2/'
 
 const files = glob.sync('*access.log', {
   'cwd': DIR
