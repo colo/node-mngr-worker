@@ -46,14 +46,14 @@ Array.each(files, function(file){
   **/
 
   pipelines.push(
-    require(path.join(process.cwd(), 'apps/logs/qmail/pipeline-send-remote'))(
+    require(path.join(process.cwd(), 'apps/logs/qmail/send/pipeline-send-remote'))(
       {
         input: {
           file: path.join(DIR, file),
           stdin: false,
           // domain: domain
         },
-        output: conn,
+        output: http_receiver,
         opts: {
           type: 'qmail.send',
           hostname: os.hostname()
