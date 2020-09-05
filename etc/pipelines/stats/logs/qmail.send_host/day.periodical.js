@@ -40,7 +40,8 @@ let pipelines = [
               'aggregation': 'distinct',
               'filter': [
                 // "this.r.row('metadata').hasFields('domain')"
-                "this.r.row('metadata').hasFields('tag').and(this.r.row('metadata')('tag').contains('host').and( this.r.row('metadata')('path').match('^logs.qmail.send')))"
+                // "this.r.row('metadata').hasFields('tag').and(this.r.row('metadata')('tag').contains('host').and( this.r.row('metadata')('path').match('^logs.qmail.send')))"
+                "this.r.row('metadata').hasFields('tag').and(this.r.row('metadata')('tag').contains('host').and( this.r.row('metadata')('path').eq('logs.qmail.send').or(this.r.row('metadata')('path').eq('logs.qmail.send.status')) ))"
               ]
             }
           }
