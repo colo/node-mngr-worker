@@ -37,10 +37,9 @@ let pipelines = [
                 { 'metadata': ['host'] } // 'path' ain't needed for first view (categories)
               ],
               'aggregation': 'distinct',
-              // 'filter': [
-              //   // "this.r.row('metadata').hasFields('domain')"
-              //   "this.r.row('metadata').hasFields('domain').and(this.r.row('metadata')('path').eq('logs.educativa'))"
-              // ]
+              'filter': [
+                "this.r.row('metadata')('path').ne('os')"
+              ]
             }
           }
           // }
